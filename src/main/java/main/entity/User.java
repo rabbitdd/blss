@@ -1,9 +1,6 @@
 package main.entity;
 
 import javax.persistence.*;
-import java.sql.Date;
-import java.sql.Time;
-import java.sql.Timestamp;
 
 @Entity(name = "users")
 public class User {
@@ -33,6 +30,14 @@ public class User {
 
     @Column(name = "login")
     private String login;
+
+    public Boolean getActive() {
+        return active;
+    }
+
+    public void setActive(Boolean active) {
+        this.active = active;
+    }
 
     @Column(name = "password")
     private String password;
