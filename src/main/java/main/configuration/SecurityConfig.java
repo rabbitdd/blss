@@ -14,32 +14,39 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
+  private final CustomerUserDetailService service;
 
-    private final CustomerUserDetailService service;
+  public SecurityConfig(CustomerUserDetailService service) {
+    this.service = service;
+  }
 
-    public SecurityConfig(CustomerUserDetailService service) {
-        this.service = service;
-    }
-    @Override
-    public void configure(HttpSecurity httpSecurity) throws Exception{
-        httpSecurity.cors();
-        String pointAuth = "/auth";
-        String pointSignUp = "/signUp";
-        httpSecurity.csrf().disable()
-                .authorizeRequests()
-                .antMatchers(pointAuth).permitAll()
-                .antMatchers(pointSignUp).permitAll()
-                .and().httpBasic()
-                .and().sessionManagement().disable();
-    }
+  @Override
+  public void configure(HttpSecurity httpSecurity) throws Exception {
+    httpSecurity.cors();
+    String pointAuth = "/auth";
+    String pointSignUp = "/signUp";
+    httpSecurity
+        .csrf()
+        .disable()
+        .authorizeRequests()
+        .antMatchers(pointAuth)
+        .permitAll()
+        .antMatchers(pointSignUp)
+        .permitAll()
+        .and()
+        .httpBasic()
+        .and()
+        .sessionManagement()
+        .disable();
+  }
 
-    @Override
-    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.userDetailsService(service);
-    }
+  @Override
+  protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+    auth.userDetailsService(service);
+  }
 
-    @Bean
-    public PasswordEncoder getPasswordEncoder() {
-        return new BCryptPasswordEncoder(12);
-    }
+  @Bean
+  public PasswordEncoder getPasswordEncoder() {
+    return new BCryptPasswordEncoder(12);
+  }
 }

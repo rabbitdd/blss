@@ -8,8 +8,13 @@ import java.util.ArrayList;
 import java.util.Optional;
 
 @Component
-public interface PageRepository extends JpaRepository<Page, Long> {
-    Page getPageById(Long id);
-    Optional<Page> getPageByName(String name);
-    ArrayList<Page> getAllBy();
+public interface SearchRepository extends JpaRepository<Page, Long> {
+
+  Page getPageById(Long id);
+
+  Optional<Page> getPageByName(String name);
+
+  ArrayList<Page> getAllBy();
+
+  Boolean existsPageByName(String name);
 }

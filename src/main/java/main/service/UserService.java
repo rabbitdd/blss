@@ -10,35 +10,34 @@ import java.util.Optional;
 @Service
 public class UserService {
 
-    private final UserRepository userRepository;
+  private final UserRepository userRepository;
 
-    public UserService(UserRepository userRepository) {
-        this.userRepository = userRepository;
+  public UserService(UserRepository userRepository) {
+    this.userRepository = userRepository;
+  }
+
+  public Long getUserId(String login) {
+    Optional<User> userOptional = userRepository.getUserByLogin(login);
+    if (userOptional.isPresent()) {
+      User user = userOptional.get();
+      return user.getId();
     }
+    return (long) -1;
+  }
 
+  public User getUserById(long id) {
+    User user = userRepository.getUserById(id);
+    return user;
+  }
 
-    public Long getUserId(String login){
-        Optional<User> userOptional = userRepository.getUserByLogin(login);
-        if(userOptional.isPresent()){
-            User user = userOptional.get();
-            return user.getId();
-        }
-        return (long) -1;
+  public User getUserByLogin(String login) {
+    Optional<User> userOptional = userRepository.getUserByLogin(login);
+    if (!userOptional.isPresent()) {
+      throw new UsernameNotFoundException("User not found");
     }
-    public User getUserById(long id){
-        User user = userRepository.getUserById(id);
-        return user;
-    }
+    User user = userOptional.get();
+    return user;
+  }
 
-    public User getUserByLogin(String login){
-        Optional<User> userOptional = userRepository.getUserByLogin(login);
-        if(!userOptional.isPresent()) {
-            throw new UsernameNotFoundException("User not found");
-        }
-        User user = userOptional.get();
-        return user;
-    }
-
-
-    // to do получать у юзера все документы, все очереди и все что купить заказать в магазине
+  // to do получать у юзера все документы, все очереди и все что купить заказать в магазине
 }

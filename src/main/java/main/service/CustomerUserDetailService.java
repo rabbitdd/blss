@@ -15,35 +15,37 @@ import java.util.Optional;
 @Service
 public class CustomerUserDetailService implements UserDetailsService {
 
-    private final UserRepository userRepository;
+  private final UserRepository userRepository;
 
-    public CustomerUserDetailService(UserRepository userRepository) {
-        this.userRepository = userRepository;
+  public CustomerUserDetailService(UserRepository userRepository) {
+    this.userRepository = userRepository;
+  }
+
+  @Override
+  public UserDetails loadUserByUsername(String login) throws UsernameNotFoundException {
+
+    Optional<User> userOptional = userRepository.getUserByLogin(login);
+    if (!userOptional.isPresent()) {
+      throw new UsernameNotFoundException("User not found");
     }
+    User user = userOptional.get();
+    System.out.println(user);
+    List<SimpleGrantedAuthority> authorities =
+        Collections.singletonList(new SimpleGrantedAuthority("USER"));
 
-    @Override
-    public UserDetails loadUserByUsername(String login) throws UsernameNotFoundException {
+    return new org.springframework.security.core.userdetails.User(
+        user.getLogin(), user.getPassword(), authorities);
+  }
 
-        Optional<User> userOptional = userRepository.getUserByLogin(login);
-        if(!userOptional.isPresent()) {
-            throw new UsernameNotFoundException("User not found");
-        }
-        User user = userOptional.get();
-        System.out.println(user.toString());
-        List<SimpleGrantedAuthority> authorities = Collections.singletonList(new SimpleGrantedAuthority("USER"));
-
-        return new org.springframework.security.core.userdetails.User(user.getLogin(), user.getPassword(), authorities);
+  public String addUser(User user) {
+    try {
+      user.setRole("USER");
+      user.setActive(true);
+      userRepository.save(user);
+      return "{\"token\": \"true\"}";
+    } catch (Exception e) {
+      e.printStackTrace();
+      return "{\"token\": \"err\"}";
     }
-
-    public String addUser(User user) {
-        try {
-            user.setRole("USER");
-            user.setActive(true);
-            userRepository.save(user);
-            return "{\"token\": \"true\"}";
-        } catch (Exception e) {
-            e.printStackTrace();
-            return "{\"token\": \"err\"}";
-        }
-    }
+  }
 }
