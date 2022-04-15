@@ -43,7 +43,7 @@ public class ApproveService {
     List<Check> checks = checkRepository.getAllByUserId(user.getId());
     for (Check check : checks) {
       if(check.getIs_confirmed() == null) {
-        Change change = changeRepository.getById(check.getChange_id());
+        Change change = changeRepository.getById(check.getChangeId());
         System.out.println(change.getId());
         Page page = searchRepository.getPageById(change.getPageId());
         string.append(page.getName()).append("\n");
@@ -51,4 +51,5 @@ public class ApproveService {
     }
     return string.toString();
   }
+
 }

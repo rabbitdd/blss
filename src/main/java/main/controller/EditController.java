@@ -2,6 +2,7 @@ package main.controller;
 
 import main.entity.Page;
 import main.entity.Request;
+import main.service.ApproveService;
 import main.service.EditService;
 import main.service.SearchService;
 import main.service.ValidationService;
@@ -19,6 +20,9 @@ public class EditController {
 
   @Autowired
   EditService editService;
+
+  @Autowired
+  ApproveService approveService;
 
   @PostMapping("/edit")
   public String editArticle(@RequestBody Request request) {
@@ -38,6 +42,13 @@ public class EditController {
 
   @GetMapping("/getStatus")
   public String getStatus(@RequestParam String login, @RequestParam Long id){
-    return "some";
+
+    if(!validationService.validator(login, id)){
+      return "no access";
+    }
+    else {
+        return editService.getStatus(id);
+    }
+
   }
 }
