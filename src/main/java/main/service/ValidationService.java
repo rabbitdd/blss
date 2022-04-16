@@ -31,14 +31,6 @@ public class ValidationService {
     this.changeRepository = changeRepository;
   }
 
-  private boolean userExist(String login) {
-    if (!userRepository.existsUserByLogin(login)) {
-      return false;
-    }
-    // check user has a valid role
-    return true;
-  }
-  // TODO user has a valid role
   public boolean userHasValidRole(String login) {
     if (userExist(login)) {
       User user = userRepository.getUserByLogin(login).get();
@@ -58,6 +50,20 @@ public class ValidationService {
         .isPresent();
   }
   // TODO check the comments
+
+  private boolean userExist(String login) {
+    if (!userRepository.existsUserByLogin(login)) {
+      return false;
+    }
+    // check user has a valid role
+    return true;
+  }
+
+  //    private boolean pageToUserVerification(Page page, String login) {
+  //        User user = userRepository.getUserByLogin(login).get();
+  //        return pageExist(page.getName()) && page.getOwner().equals(user.getId());
+  //    }
+  //    // TODO check the comments
 
   public boolean validation(Request request) {
     Page page = request.getPage();
@@ -79,7 +85,7 @@ public class ValidationService {
       List<Check> checks = checkRepository.getAllByUserId(user.getId());
       long index = -1;
       for (Check check : checks) {
-        if (check.getChange_id().equals(change.getId())) {
+        if (check.getChangeId().equals(change.getId())) {
           index = check.getId();
           break;
         }
@@ -91,5 +97,10 @@ public class ValidationService {
   public boolean validationRequestPage(Page page) {
     return Stream.of(page.getId(), page.getOwner(), page.getName(), page.getRole(), page.getText())
         .noneMatch(Objects::isNull);
+  }
+
+  public boolean validator(String login, Long id) {
+    Page page = searchRepository.getPageById(id);
+    return userExist(login) && pageToUserVerification(page, login);
   }
 }

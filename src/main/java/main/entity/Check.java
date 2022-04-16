@@ -20,7 +20,7 @@ public class Check {
   private Long userId;
 
   @Column(name = "change_id")
-  private Long change_id;
+  private Long changeId;
 
   @Column(name = "comment")
   private String comment;
