@@ -51,4 +51,15 @@ public class EditController {
     }
 
   }
+  @GetMapping("/commit")
+  public String makeCommit(@RequestParam String login, @RequestParam Long id){
+    if(!validationService.validator(login, id)){
+      return "no access";
+    }
+    else {
+      return editService.makeCommit(id);
+
+
+    }
+  }
 }

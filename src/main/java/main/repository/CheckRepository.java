@@ -19,4 +19,7 @@ public interface CheckRepository  extends JpaRepository<Check, Long>{
    void setUserInfoById(Boolean flag, String comment, Long id);
 
    List<Check> getAllByChangeId(Long changeId);
+
+   @Transactional
+   void deleteAllByChangeId(Long id);
 }

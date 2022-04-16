@@ -5,6 +5,7 @@ import main.entity.Check;
 import main.entity.User;
 import main.repository.ChangeRepository;
 import main.repository.CheckRepository;
+import main.repository.SearchRepository;
 import main.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
@@ -17,17 +18,19 @@ public class EditService {
     private final ChangeRepository changeRepository;
     private final UserRepository userRepository;
     private final CheckRepository checkRepository;
+    private final SearchRepository searchRepository;
 
     public EditService(ChangeRepository changeRepository, UserRepository userRepository,
-                       CheckRepository checkRepository) {
+                       CheckRepository checkRepository, SearchRepository searchRepository) {
         this.changeRepository = changeRepository;
         this.userRepository = userRepository;
         this.checkRepository = checkRepository;
+        this.searchRepository = searchRepository;
     }
 
     public boolean addChange(Long id, String change){
         Optional<Change> check = changeRepository.getChangeByPageId(id);
-        if(check.isPresent() && check.get().getIs_confirmed() == null){
+        if(check.isPresent()){
             return false;
         }
         Change change1 = new Change();
@@ -72,7 +75,29 @@ public class EditService {
             }
             else{
                 if(ch.getIs_confirmed()){
-                    return "everything is fine";
+                    return "Everything is fine";
+                }
+                else{
+                    return "not accepted";
+                }
+            }
+        }
+    }
+
+    public String makeCommit(Long id){
+        Optional<Change> change = changeRepository.getChangeByPageId(id);
+        if(!change.isPresent()){
+            return "noting to commit";
+        }
+        else{
+            updateStatus(change.get());
+            Change ch = changeRepository.getChangeByPageId(id).get();
+            if(ch.getIs_confirmed() == null){
+                return "still under review";
+            }
+            else{
+                if(ch.getIs_confirmed()){
+                    return commit(id);
                 }
                 else{
                     return "not accepted";
@@ -97,6 +122,15 @@ public class EditService {
         if(sum == 0){
             changeRepository.setUserInfoById(flag, change.getId());
         }
+    }
+
+    private String commit(Long id){
+        Change change = changeRepository.getChangeByPageId(id).get();
+        checkRepository.deleteAllByChangeId(change.getId());
+        changeRepository.deleteByPageId(id);
+        String string = change.getText();
+        searchRepository.setUserInfoById(string, id);
+        return "everything was updated";
     }
 
 }
