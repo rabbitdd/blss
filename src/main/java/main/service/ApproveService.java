@@ -19,8 +19,11 @@ public class ApproveService {
   private final CheckRepository checkRepository;
   private final ChangeRepository changeRepository;
 
-  public ApproveService(SearchRepository searchRepository, UserRepository userRepository,
-                        CheckRepository checkRepository, ChangeRepository changeRepository) {
+  public ApproveService(
+      SearchRepository searchRepository,
+      UserRepository userRepository,
+      CheckRepository checkRepository,
+      ChangeRepository changeRepository) {
     this.searchRepository = searchRepository;
     this.userRepository = userRepository;
     this.checkRepository = checkRepository;
@@ -32,17 +35,17 @@ public class ApproveService {
     return true;
   }
 
-  public boolean approve(Verdict verdict, long index){
+  public boolean approve(Verdict verdict, long index) {
     checkRepository.setUserInfoById(verdict.is_confirmed(), verdict.getComment(), index);
     return true;
   }
 
-  public String getToApprove(String login){
+  public String getToApprove(String login) {
     StringBuilder string = new StringBuilder();
     User user = userRepository.getUserByLogin(login).get();
     List<Check> checks = checkRepository.getAllByUserId(user.getId());
     for (Check check : checks) {
-      if(check.getIs_confirmed() == null) {
+      if (check.getIs_confirmed() == null) {
         Change change = changeRepository.getById(check.getChange_id());
         System.out.println(change.getId());
         Page page = searchRepository.getPageById(change.getPageId());

@@ -8,6 +8,7 @@ import java.util.Optional;
 
 @Component
 public interface ChangeRepository extends JpaRepository<Change, Long> {
-    Optional<Change> getChangeByPageId(Long pageId);
-    Boolean existsByPageId(Long pageId);
+  Optional<Change> getChangeByPageId(Long pageId);
+
+  Boolean existsByPageId(Long pageId);
 }

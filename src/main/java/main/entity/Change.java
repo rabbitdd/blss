@@ -12,18 +12,17 @@ import javax.persistence.*;
 @ToString
 public class Change {
 
-    @Id
-    @Column(name = "change_id")
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+  @Id
+  @Column(name = "change_id")
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    @Column(name = "page_id")
-    private Long pageId;
+  @Column(name = "page_id")
+  private Long pageId;
 
-    @Column(name = "new_page")
-    private String text;
+  @Column(name = "new_page")
+  private String text;
 
-    @Column(name = "is_confirmed")
-    private Boolean is_confirmed;
-
+  @Column(name = "is_confirmed")
+  private Boolean is_confirmed;
 }

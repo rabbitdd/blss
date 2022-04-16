@@ -8,6 +8,9 @@ import main.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 @Service
 public class ValidationService {
@@ -17,15 +20,18 @@ public class ValidationService {
   private final ChangeRepository changeRepository;
   private final CheckRepository checkRepository;
 
-  public ValidationService(SearchRepository searchRepository, UserRepository userRepository,
-                           CheckRepository checkRepository, ChangeRepository changeRepository) {
+  public ValidationService(
+      SearchRepository searchRepository,
+      UserRepository userRepository,
+      CheckRepository checkRepository,
+      ChangeRepository changeRepository) {
     this.searchRepository = searchRepository;
     this.userRepository = userRepository;
     this.checkRepository = checkRepository;
     this.changeRepository = changeRepository;
   }
 
-  private boolean userExist(String login){
+  private boolean userExist(String login) {
     if (!userRepository.existsUserByLogin(login)) {
       return false;
     }
@@ -33,23 +39,23 @@ public class ValidationService {
     return true;
   }
   // TODO user has a valid role
-  public boolean userHasValidRole(String login){
-    if(userExist(login)){
+  public boolean userHasValidRole(String login) {
+    if (userExist(login)) {
       User user = userRepository.getUserByLogin(login).get();
       return user.getRole().equals("admin");
-    }
-    else {
+    } else {
       return false;
     }
   }
   // TODO page exist or else not exist create page
-  private boolean pageExist(String page){
+  private boolean pageExist(String page) {
     return searchRepository.existsPageByName(page);
   }
 
-  private boolean pageToUserVerification(Page page, String login){
-    User user = userRepository.getUserByLogin(login).get();
-    return pageExist(page.getName()) && page.getOwner().equals(user.getId());
+  private boolean pageToUserVerification(Page page, String login) {
+    Optional<User> user = userRepository.getUserByLogin(login);
+    return user.filter(value -> pageExist(page.getName()) && page.getOwner().equals(value.getId()))
+        .isPresent();
   }
   // TODO check the comments
 
@@ -60,13 +66,12 @@ public class ValidationService {
     return userExist(userLogin) && pageToUserVerification(page, userLogin);
   }
 
-  public long changeToAdminValidation(Verdict verdict){
-    if(!(userHasValidRole(verdict.getLogin()) && pageExist(verdict.getPageName()))){
+  public long changeToAdminValidation(Verdict verdict) {
+    if (!(userHasValidRole(verdict.getLogin()) && pageExist(verdict.getPageName()))) {
       return -1;
-    }
-    else{
+    } else {
       Page page = searchRepository.getPageByName(verdict.getPageName()).get();
-      if(!changeRepository.existsByPageId(page.getId())){
+      if (!changeRepository.existsByPageId(page.getId())) {
         return -1;
       }
       Change change = changeRepository.getChangeByPageId(page.getId()).get();
@@ -81,5 +86,10 @@ public class ValidationService {
       }
       return index;
     }
+  }
+
+  public boolean validationRequestPage(Page page) {
+    return Stream.of(page.getId(), page.getOwner(), page.getName(), page.getRole(), page.getText())
+        .noneMatch(Objects::isNull);
   }
 }
