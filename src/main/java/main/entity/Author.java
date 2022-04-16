@@ -17,8 +17,8 @@ public class Author {
   private Long id;
 
   @Column(name = "user_id")
-  private Long pageId;
+  private Long userId;
 
   @Column(name = "page_id")
-  private String text;
+  private Long pageId;
 }

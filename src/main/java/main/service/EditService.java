@@ -125,6 +125,8 @@ public class EditService {
     }
   }
 
+  // todo rewrite logic of method
+
   public boolean approveEditPageForOneUser(Long userId, Long senderId) {
     List<Notification> notifications =
         notificationRepository.getNotificationsByUserIdAndUserSenderId(userId, senderId);

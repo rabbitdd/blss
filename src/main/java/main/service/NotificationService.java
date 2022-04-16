@@ -22,7 +22,7 @@ public class NotificationService implements UserFinder {
     this.notificationRepository = notificationRepository;
   }
 
-  public boolean sendConfirmationsToAllCoAuthors(Long senderUser, Page page) {
+  public void sendConfirmationsToAllCoAuthors(Long senderUser, Page page) {
     List<Long> authorId = this.findAllCoAuthorUsers(page.getId());
     authorId.forEach(
         id -> {
@@ -32,7 +32,6 @@ public class NotificationService implements UserFinder {
           notification.setStatus(false);
           notificationRepository.save(notification);
         });
-    return true;
   }
 
   public void acknowledgeNotification(Notification notification) {
@@ -50,5 +49,9 @@ public class NotificationService implements UserFinder {
         });
 
     return usersId;
+  }
+
+  public List<Notification> getNotification(Long userId) {
+    return notificationRepository.getNotificationsByUserId(userId);
   }
 }
