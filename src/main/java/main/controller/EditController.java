@@ -1,9 +1,13 @@
 package main.controller;
 
+import main.entity.Change;
 import main.entity.Request;
 import main.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController("wiki")
 public class EditController {
@@ -60,4 +64,9 @@ public class EditController {
 //      return editService.makeCommit(id);
 //    }
 //  }
+
+  @GetMapping("/getСonfirmedСhanges")
+  public ResponseEntity<List<Change>> getСonfirmedСhanges(@RequestParam String login, @RequestParam String name){
+    return editService.getChanges(login, name, true);
+  }
 }

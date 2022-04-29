@@ -25,4 +25,10 @@ public class Change {
 
   @Column(name = "is_confirmed")
   private Boolean is_confirmed;
+
+  @Column(name = "user_id")
+  private Long userId;
+
+  @Column(name = "old_page")
+  private String oldText;
 }

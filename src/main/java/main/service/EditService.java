@@ -2,8 +2,10 @@ package main.service;
 
 import main.entity.*;
 import main.repository.*;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import javax.jws.soap.SOAPBinding;
 import java.util.List;
 import java.util.Optional;
 
@@ -107,6 +109,16 @@ public class EditService {
                     return "not accepted";
                 }
             }
+        }
+    }
+
+    public ResponseEntity<List<Change>> getChanges(String username, String name, boolean flag){
+        Optional<Page> optionalPage = searchRepository.getPageByName(name);
+        Optional<User> userOptional = userRepository.getUserByLogin(username);
+        if(optionalPage.isPresent() && userOptional.isPresent()){
+            Page page = optionalPage.get();
+            User user = userOptional.get();
+
         }
     }
 

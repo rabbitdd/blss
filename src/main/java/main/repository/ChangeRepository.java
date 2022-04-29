@@ -7,11 +7,14 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Component;
 
 import javax.transaction.Transactional;
+import java.util.List;
 import java.util.Optional;
 
 @Component
 public interface ChangeRepository extends JpaRepository<Change, Long> {
     Optional<Change> getChangeByPageId(Long pageId);
+
+    List<Change> getAllByPageId(Long id);
 
     Boolean existsByPageId(Long pageId);
 
