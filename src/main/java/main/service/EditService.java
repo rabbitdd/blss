@@ -13,6 +13,7 @@ public class EditService {
   private final ChangeRepository changeRepository;
   private final UserRepository userRepository;
   private final CheckRepository checkRepository;
+  private final SearchRepository searchRepository;
   private final AuthorRepository authorRepository;
   private final NotificationRepository notificationRepository;
   private final PageRepository pageRepository;
@@ -20,17 +21,18 @@ public class EditService {
   private final ValidationService validationService;
 
   public EditService(
-      ChangeRepository changeRepository,
-      UserRepository userRepository,
-      CheckRepository checkRepository,
-      AuthorRepository authorRepository,
-      NotificationRepository notificationRepository,
-      PageRepository pageRepository,
-      NotificationService notificationService,
-      ValidationService validationService) {
+          ChangeRepository changeRepository,
+          UserRepository userRepository,
+          CheckRepository checkRepository,
+          SearchRepository searchRepository, AuthorRepository authorRepository,
+          NotificationRepository notificationRepository,
+          PageRepository pageRepository,
+          NotificationService notificationService,
+          ValidationService validationService) {
     this.changeRepository = changeRepository;
     this.userRepository = userRepository;
     this.checkRepository = checkRepository;
+    this.searchRepository = searchRepository;
     this.authorRepository = authorRepository;
     this.notificationRepository = notificationRepository;
     this.pageRepository = pageRepository;
@@ -40,7 +42,7 @@ public class EditService {
 
   public boolean addChange(Long id, String change) {
     Optional<Change> check = changeRepository.getChangeByPageId(id);
-    if (check.isPresent() && check.get().getIs_confirmed() == null) {
+    if (check.isPresent()) {
       return false;
     }
     Change change1 = new Change();
@@ -99,8 +101,9 @@ public class EditService {
         return "still under review";
       } else {
         if (ch.getIs_confirmed()) {
-          return "everything is fine";
-        } else {
+          return "Everything is fine";
+        }
+        else{
           return "not accepted";
         }
       }
@@ -125,6 +128,25 @@ public class EditService {
     }
   }
 
+  public String makeCommit(Long id) {
+    Optional<Change> change = changeRepository.getChangeByPageId(id);
+    if (!change.isPresent()) {
+      return "noting to commit";
+    } else {
+      updateStatus(change.get());
+      Change ch = changeRepository.getChangeByPageId(id).get();
+      if (ch.getIs_confirmed() == null) {
+        return "still under review";
+      } else {
+        if (ch.getIs_confirmed()) {
+          return commit(id);
+        } else {
+          return "not accepted";
+        }
+      }
+    }
+    }
+
   // todo rewrite logic of method
 
   public boolean approveEditPageForOneUser(Long userId, Long senderId) {
@@ -136,5 +158,14 @@ public class EditService {
           notificationRepository.save(notification);
         });
     return true;
+  }
+
+  private String commit(Long id){
+    Change change = changeRepository.getChangeByPageId(id).get();
+    checkRepository.deleteAllByChangeId(change.getId());
+    changeRepository.deleteByPageId(id);
+    String string = change.getText();
+    searchRepository.setUserInfoById(string, id);
+    return "everything was updated";
   }
 }

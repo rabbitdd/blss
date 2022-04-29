@@ -19,4 +19,7 @@ public interface ChangeRepository extends JpaRepository<Change, Long> {
   @Modifying
   @Query("update change c set c.is_confirmed = ?1 where c.id = ?2")
   void setUserInfoById(Boolean flag, Long id);
+
+  @Transactional
+  void deleteByPageId(Long id);
 }

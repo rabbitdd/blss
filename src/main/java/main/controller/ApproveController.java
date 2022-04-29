@@ -13,24 +13,13 @@ public class ApproveController {
 
   @PostMapping("/verdict")
   public Boolean makeVerdict(@RequestBody Verdict verdict) {
-    long index = validationService.changeToAdminValidation(verdict);
-    if (index != -1) {
-      return approveService.approve(verdict, index);
-    } else {
-      return false;
-    }
+    // return approveService.approve();
+    return true;
   }
 
   @GetMapping("/getToVerdict")
   public String getToVerdict(@RequestParam String login) {
-    if (!validationService.userHasValidRole(login)) return "no access";
-    else {
-      String string = approveService.getToApprove(login);
-      if (string.length() == 0) {
-        return "noting to check";
-      } else {
-        return string;
-      }
-    }
+    // return approveService.getToApprove();
+    return "";
   }
 }

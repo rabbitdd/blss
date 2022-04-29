@@ -34,7 +34,7 @@ public class PageService {
     if (this.validationRequestPage(page)) {
       Optional<User> user = userRepository.getUserByLogin(request.getUserLogin());
       pageRepository.save(page);
-
+      // todo если статья с таким именем уже есть, то отправить сообщение об ошбике
       if (user.isPresent()) {
         Author author = new Author();
         author.setUserId(user.get().getId());

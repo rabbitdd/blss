@@ -20,37 +20,44 @@ public class EditController {
   ApproveService approveService;
 
   @PostMapping("/edit")
-  public String editArticle(@RequestBody Request request) {
-    if (validationService.validation(request)) {
-      Long page = searchService.getPageByName(request.getPage().getName());
-      if (editService.addChange(page, request.getComment())) {
-        return "Successfully added, expect a verdict";
-      } else {
-        return "one version is already under review";
-      }
-    } else {
-      return "bad data";
-    }
+  public boolean editArticle(@RequestBody Request request) {
+    // todo любой пользователь может предложить правку
+    return editService.editWithApprove(request);
+
   }
 
   @GetMapping("/getStatus")
   public String getStatus(@RequestParam String login, @RequestParam Long id){
 
-    if(!validationService.validator(login, id)){
-      return "no access";
-    }
-    else {
-        return editService.getStatus(id);
-    }
+    // todo получить статус по конкретному изменения в формате json
+    return "";
+//    if(!validationService.validator(login, id)){
+//      return "no access";
+//    }
+//    else {
+//        return editService.getStatus(id);
+//    }
   }
 
-  @PostMapping("/editWithApprove")
-  public boolean editWithApprove(Request request) {
-    return editService.editWithApprove(request);
-  }
+//  @PostMapping("/editWithApprove")
+//  public boolean editWithApprove(Request request) {
+//    return editService.editWithApprove(request);
+//  }
 
   @PostMapping("/approve")
-  public boolean approveEditPageForOneUser(@RequestParam Long userId, @RequestParam Long senderId) {
-    return editService.approveEditPageForOneUser(userId, senderId);
+  public boolean approveEditPageForOneUser(@RequestParam String userLogin, @RequestParam String senderLogin, @RequestParam String articleName) {
+    // todo approveEditPageForOneUser();
+    return true;
+    // return editService.approveEditPageForOneUser();
   }
+
+//  @GetMapping("/commit")
+//  public String makeCommit(@RequestParam String login, @RequestParam Long id){
+//    if(!validationService.validator(login, id)){
+//      return "no access";
+//    }
+//    else {
+//      return editService.makeCommit(id);
+//    }
+//  }
 }
