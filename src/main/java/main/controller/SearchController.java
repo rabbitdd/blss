@@ -6,6 +6,7 @@ import main.service.RecommendationService;
 import main.service.SearchService;
 import main.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -19,8 +20,7 @@ public class SearchController {
   @Autowired UserService userService;
 
   @GetMapping("/page")
-  public String getPage(@RequestParam String login, @RequestParam String name) {
-    // todo убрать в сервис
+  public ResponseEntity<String> getPage(@RequestParam String login, @RequestParam String name) {
     return searchService.getAnswer(userService.getUserByLogin(login), name);
   }
 }

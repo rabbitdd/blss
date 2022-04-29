@@ -3,6 +3,7 @@ package main.service;
 import main.entity.Page;
 import main.entity.User;
 import main.repository.SearchRepository;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -36,7 +37,7 @@ public class SearchService {
     return searchRepository.getAllBy();
   }
 
-  public String getAnswer(User user, String name){
+  public ResponseEntity<String> getAnswer(User user, String name){
       Page page = getPageByName(name);
       if(page == null){
         List<Page> pageList = getAll();
