@@ -11,7 +11,6 @@ public class RecommendationService {
 
   public RecommendationService() {}
 
-
   public String getAnswer(Page page, User user) {
     String role = page.getRole();
     String uRole = user.getRole();
