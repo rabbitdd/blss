@@ -23,13 +23,6 @@ public class SearchController {
   @GetMapping("/page")
   public String getPage(@RequestParam String login, @RequestParam String name) {
     // todo убрать в сервис
-    long id = searchService.getPageByName(name);
-    Page page = searchService.getPageById(id);
-    User user = userService.getUserByLogin(login);
-    if (id == -1) {
-      List<Page> pageList = searchService.getAll();
-      return recommendationService.getRecommendations(pageList, user, name);
-    }
-    return recommendationService.getAnswer(page, user);
+    return searchService.getAnswer(userService.getUserByLogin(login), name);
   }
 }
