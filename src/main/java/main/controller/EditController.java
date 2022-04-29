@@ -1,6 +1,7 @@
 package main.controller;
 
 import main.entity.Change;
+import main.entity.ChangeAnswer;
 import main.entity.Request;
 import main.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,8 +66,13 @@ public class EditController {
 //    }
 //  }
 
-  @GetMapping("/getСonfirmedСhanges")
-  public ResponseEntity<List<Change>> getСonfirmedСhanges(@RequestParam String login, @RequestParam String name){
-    return editService.getChanges(login, name, true);
+  @GetMapping("/getChanges")
+  public ResponseEntity<List<ChangeAnswer>> getСonfirmedСhanges(@RequestParam String login, @RequestParam String name, @RequestParam boolean flag){
+    return editService.getChanges(login, name, flag);
+  }
+
+  @GetMapping("/getWaitingChanges")
+  public ResponseEntity<List<ChangeAnswer>> getWaitingChanges(@RequestParam String login, @RequestParam String name){
+    return editService.getWaitingChanges(login, name);
   }
 }

@@ -2,10 +2,12 @@ package main.service;
 
 import main.entity.*;
 import main.repository.*;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import javax.jws.soap.SOAPBinding;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -112,13 +114,53 @@ public class EditService {
         }
     }
 
-    public ResponseEntity<List<Change>> getChanges(String username, String name, boolean flag){
+    public ResponseEntity<List<ChangeAnswer>> getChanges(String username, String name, boolean flag){
         Optional<Page> optionalPage = searchRepository.getPageByName(name);
         Optional<User> userOptional = userRepository.getUserByLogin(username);
         if(optionalPage.isPresent() && userOptional.isPresent()){
             Page page = optionalPage.get();
             User user = userOptional.get();
+            if(user.getRole().equals(page.getRole()) || user.getRole().equals("admin")){
+                List<ChangeAnswer> answer = new ArrayList<>();
+                List<Change> changes = changeRepository.getAllByPageId(page.getId());
+                for (Change change : changes) {
+                    if ((change.getIs_confirmed() != null && change.getIs_confirmed() == flag)) {
+                        answer.add(new ChangeAnswer(change.getId(), change.getText(), change.getOldText(), name, userRepository.getUserById(change.getUserId()).getLogin()));
+                    }
+                }
+                return new ResponseEntity<>(answer, HttpStatus.OK);
+            }
+            else{
+                return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+            }
+        }
+        else{
+            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        }
+    }
 
+    public ResponseEntity<List<ChangeAnswer>> getWaitingChanges(String username, String name){
+        Optional<Page> optionalPage = searchRepository.getPageByName(name);
+        Optional<User> userOptional = userRepository.getUserByLogin(username);
+        if(optionalPage.isPresent() && userOptional.isPresent()){
+            Page page = optionalPage.get();
+            User user = userOptional.get();
+            if(user.getRole().equals(page.getRole()) || user.getRole().equals("admin")){
+                List<ChangeAnswer> answer = new ArrayList<>();
+                List<Change> changes = changeRepository.getAllByPageId(page.getId());
+                for (Change change : changes) {
+                    if (change.getIs_confirmed() == null) {
+                        answer.add(new ChangeAnswer(change.getId(), change.getText(), change.getOldText(), name, userRepository.getUserById(change.getUserId()).getLogin()));
+                    }
+                }
+                return new ResponseEntity<>(answer, HttpStatus.OK);
+            }
+            else{
+                return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+            }
+        }
+        else{
+            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
         }
     }
 
