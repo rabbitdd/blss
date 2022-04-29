@@ -19,8 +19,11 @@ public class ApproveService {
   private final CheckRepository checkRepository;
   private final ChangeRepository changeRepository;
 
-  public ApproveService(SearchRepository searchRepository, UserRepository userRepository,
-                        CheckRepository checkRepository, ChangeRepository changeRepository) {
+  public ApproveService(
+      SearchRepository searchRepository,
+      UserRepository userRepository,
+      CheckRepository checkRepository,
+      ChangeRepository changeRepository) {
     this.searchRepository = searchRepository;
     this.userRepository = userRepository;
     this.checkRepository = checkRepository;
@@ -32,24 +35,15 @@ public class ApproveService {
     return true;
   }
 
-  public boolean approve(Verdict verdict, long index){
-    checkRepository.setUserInfoById(verdict.is_confirmed(), verdict.getComment(), index);
+  public boolean approve(Verdict verdict, String nameOfArticle) {
+
+    // todo подтвердить статью с именем
     return true;
   }
 
-  public String getToApprove(String login){
-    StringBuilder string = new StringBuilder();
-    User user = userRepository.getUserByLogin(login).get();
-    List<Check> checks = checkRepository.getAllByUserId(user.getId());
-    for (Check check : checks) {
-      if(check.getIs_confirmed() == null) {
-        Change change = changeRepository.getById(check.getChangeId());
-        System.out.println(change.getId());
-        Page page = searchRepository.getPageById(change.getPageId());
-        string.append(page.getName()).append("\n");
-      }
-    }
-    return string.toString();
+  public String getToApprove(String login) {
+    // todo возвращать соавтору список статей которые он должен подтвердить
+    // todo если не соавтор => роль админ на подтверждение статей
+    return null;
   }
-
 }

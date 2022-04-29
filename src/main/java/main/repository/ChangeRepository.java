@@ -1,7 +1,6 @@
 package main.repository;
 
 import main.entity.Change;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -13,6 +12,7 @@ import java.util.Optional;
 @Component
 public interface ChangeRepository extends JpaRepository<Change, Long> {
     Optional<Change> getChangeByPageId(Long pageId);
+
     Boolean existsByPageId(Long pageId);
 
     @Transactional
@@ -23,3 +23,4 @@ public interface ChangeRepository extends JpaRepository<Change, Long> {
     @Transactional
     void deleteByPageId(Long id);
 }
+

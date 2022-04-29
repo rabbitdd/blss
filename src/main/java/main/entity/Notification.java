@@ -4,27 +4,24 @@ import lombok.*;
 
 import javax.persistence.*;
 
-@Entity(name = "check")
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
 @ToString
-public class Check {
+@Entity(name = "notification")
+public class Notification {
   @Id
-  @Column(name = "check_id")
+  @Column(name = "notification_id")
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
   @Column(name = "user_id")
   private Long userId;
 
-  @Column(name = "change_id")
-  private Long changeId;
+  @Column(name = "user_sender_id")
+  private Long userSenderId;
 
-  @Column(name = "comment")
-  private String comment;
-
-  @Column(name = "is_confirmed")
-  private Boolean is_confirmed;
+  @Column(name = "status")
+  private Boolean status;
 }

@@ -1,12 +1,7 @@
 package main.service;
 
-import main.entity.Change;
-import main.entity.Check;
-import main.entity.User;
-import main.repository.ChangeRepository;
-import main.repository.CheckRepository;
-import main.repository.SearchRepository;
-import main.repository.UserRepository;
+import main.entity.*;
+import main.repository.*;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,18 +14,35 @@ public class EditService {
     private final UserRepository userRepository;
     private final CheckRepository checkRepository;
     private final SearchRepository searchRepository;
+    private final AuthorRepository authorRepository;
+    private final NotificationRepository notificationRepository;
+    private final PageRepository pageRepository;
+    private final NotificationService notificationService;
+    private final ValidationService validationService;
 
-    public EditService(ChangeRepository changeRepository, UserRepository userRepository,
-                       CheckRepository checkRepository, SearchRepository searchRepository) {
+    public EditService(
+            ChangeRepository changeRepository,
+            UserRepository userRepository,
+            CheckRepository checkRepository,
+            SearchRepository searchRepository, AuthorRepository authorRepository,
+            NotificationRepository notificationRepository,
+            PageRepository pageRepository,
+            NotificationService notificationService,
+            ValidationService validationService) {
         this.changeRepository = changeRepository;
         this.userRepository = userRepository;
         this.checkRepository = checkRepository;
         this.searchRepository = searchRepository;
+        this.authorRepository = authorRepository;
+        this.notificationRepository = notificationRepository;
+        this.pageRepository = pageRepository;
+        this.notificationService = notificationService;
+        this.validationService = validationService;
     }
 
-    public boolean addChange(Long id, String change){
+    public boolean addChange(Long id, String change) {
         Optional<Change> check = changeRepository.getChangeByPageId(id);
-        if(check.isPresent()){
+        if (check.isPresent()) {
             return false;
         }
         Change change1 = new Change();
@@ -40,9 +52,25 @@ public class EditService {
         return addChecks(id);
     }
 
-    private boolean addChecks(Long id){
+    public boolean editWithApprove(Request request) {
+        if (validationService.validationRequestPage(request.getPage())) {
+            Optional<User> user = userRepository.getUserByLogin(request.getUserLogin());
+            user.ifPresent(
+                    value ->
+                            notificationService.sendConfirmationsToAllCoAuthors(
+                                    value.getId(), request.getPage()));
+            return true;
+        }
+        return false;
+    }
+
+    public boolean checkAllNotification(List<Notification> notifications) {
+        return notifications.stream().allMatch(Notification::getStatus);
+    }
+
+    private boolean addChecks(Long id) {
         List<User> users = userRepository.getAllByRole("admin");
-        if(users.size() >= 3) {
+        if (users.size() >= 3) {
             Change change = changeRepository.getChangeByPageId(id).get();
             User user;
             Check check;
@@ -57,24 +85,22 @@ public class EditService {
                 users.remove((int) random);
             }
             return true;
-        }
-        else{
+        } else {
             return false;
         }
     }
-    public String getStatus(Long id){
+
+    public String getStatus(Long id) {
         Optional<Change> change = changeRepository.getChangeByPageId(id);
-        if(!change.isPresent()){
+        if (!change.isPresent()) {
             return "noting to check";
-        }
-        else{
+        } else {
             updateStatus(change.get());
             Change ch = changeRepository.getChangeByPageId(id).get();
-            if(ch.getIs_confirmed() == null){
+            if (ch.getIs_confirmed() == null) {
                 return "still under review";
-            }
-            else{
-                if(ch.getIs_confirmed()){
+            } else {
+                if (ch.getIs_confirmed()) {
                     return "Everything is fine";
                 }
                 else{
@@ -84,29 +110,7 @@ public class EditService {
         }
     }
 
-    public String makeCommit(Long id){
-        Optional<Change> change = changeRepository.getChangeByPageId(id);
-        if(!change.isPresent()){
-            return "noting to commit";
-        }
-        else{
-            updateStatus(change.get());
-            Change ch = changeRepository.getChangeByPageId(id).get();
-            if(ch.getIs_confirmed() == null){
-                return "still under review";
-            }
-            else{
-                if(ch.getIs_confirmed()){
-                    return commit(id);
-                }
-                else{
-                    return "not accepted";
-                }
-            }
-        }
-    }
-
-    private void updateStatus(Change change){
+    private void updateStatus(Change change) {
         List<Check> checks = checkRepository.getAllByChangeId(change.getId());
         int sum = 0;
         boolean flag = true;
@@ -119,9 +123,41 @@ public class EditService {
                 }
             }
         }
-        if(sum == 0){
+        if (sum == 0) {
             changeRepository.setUserInfoById(flag, change.getId());
         }
+    }
+
+    public String makeCommit(Long id) {
+        Optional<Change> change = changeRepository.getChangeByPageId(id);
+        if (!change.isPresent()) {
+            return "noting to commit";
+        } else {
+            updateStatus(change.get());
+            Change ch = changeRepository.getChangeByPageId(id).get();
+            if (ch.getIs_confirmed() == null) {
+                return "still under review";
+            } else {
+                if (ch.getIs_confirmed()) {
+                    return commit(id);
+                } else {
+                    return "not accepted";
+                }
+            }
+        }
+    }
+
+    // todo rewrite logic of method
+
+    public boolean approveEditPageForOneUser(Long userId, Long senderId) {
+        List<Notification> notifications =
+                notificationRepository.getNotificationsByUserIdAndUserSenderId(userId, senderId);
+        notifications.forEach(
+                notification -> {
+                    notification.setStatus(true);
+                    notificationRepository.save(notification);
+                });
+        return true;
     }
 
     private String commit(Long id){
@@ -132,5 +168,4 @@ public class EditService {
         searchRepository.setUserInfoById(string, id);
         return "everything was updated";
     }
-
 }

@@ -35,8 +35,7 @@ public class UserService {
     if (!userOptional.isPresent()) {
       throw new UsernameNotFoundException("User not found");
     }
-    User user = userOptional.get();
-    return user;
+    return userOptional.get();
   }
 
 
