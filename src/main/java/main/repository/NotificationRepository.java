@@ -8,7 +8,9 @@ import java.util.Optional;
 
 public interface NotificationRepository extends JpaRepository<Notification, Long> {
 
-  Optional<Notification> getTopByUserIdAndUserSenderIdAndPageIdAndStatusOrderByIdDesc(Long userId, Long userSenderId, Long pageId, Boolean status);
+  Optional<Notification> getTopByUserIdAndUserSenderIdAndPageIdAndStatusOrderByIdDesc(Long userId, Long userSenderId, Long pageId, String status);
 
-  List<Notification> getNotificationsByUserIdAndStatus(Long userId, Boolean status);
+  List<Notification> getNotificationsByUserId(Long userId);
+
+  List<Notification> getAllByChangeId(Long ChangeId);
 }

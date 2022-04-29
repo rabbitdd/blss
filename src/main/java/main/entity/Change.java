@@ -24,7 +24,7 @@ public class Change {
   private String text;
 
   @Column(name = "is_confirmed")
-  private Boolean is_confirmed;
+  private String is_confirmed;
 
   @Column(name = "user_id")
   private Long userId;

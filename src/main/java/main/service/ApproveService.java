@@ -1,5 +1,6 @@
 package main.service;
 
+import main.bean.Status;
 import main.entity.Notification;
 import main.entity.Page;
 import main.entity.User;
@@ -18,14 +19,17 @@ import java.util.Optional;
 @Service
 public class ApproveService {
 
+  private final NotificationService notificationService;
+
   private final UserRepository userRepository;
   private final NotificationRepository notificationRepository;
   private final PageRepository pageRepository;
 
   public ApproveService(
-      UserRepository userRepository,
-      NotificationRepository notificationRepository,
-      PageRepository pageRepository) {
+          NotificationService notificationService, UserRepository userRepository,
+          NotificationRepository notificationRepository,
+          PageRepository pageRepository) {
+    this.notificationService = notificationService;
 
     this.userRepository = userRepository;
     this.notificationRepository = notificationRepository;
@@ -40,12 +44,18 @@ public class ApproveService {
     if (firstUser.isPresent() && secondUser.isPresent() && page.isPresent()) {
       Optional<Notification> notification =
           notificationRepository.getTopByUserIdAndUserSenderIdAndPageIdAndStatusOrderByIdDesc(
-              firstUser.get().getId(), secondUser.get().getId(), page.get().getId(), false);
+              firstUser.get().getId(),
+              secondUser.get().getId(),
+              page.get().getId(),
+              Status.NOT_CONFIRMED.toString());
       if (notification.isPresent()) {
         Notification currentNotification = notification.get();
-        currentNotification.setStatus(true);
+        currentNotification.setStatus(Status.TRUE.toString());
         notificationRepository.save(currentNotification);
         verdict.setResponseVerdictAns("Подтверждение прошло успешно");
+
+        checkApproveStatus(
+            currentNotification.getChangeId(), secondUser.get().getId(), page.get().getId());
         return verdict;
       }
       verdict.setResponseVerdictAns("Для этих пользователей нет подтверждений !");
@@ -56,12 +66,16 @@ public class ApproveService {
     return verdict;
   }
 
+  private void checkApproveStatus(Long changeId, Long userId, Long pageId) {
+    notificationService.getAllNotificationsByChangeId(changeId, userId, pageId);
+  }
+
   public ResponseEntity<?> getApprovePages(String login) {
     Optional<User> user = userRepository.getUserByLogin(login);
     if (user.isPresent()) {
       List<Page> pagesWithStatus = new ArrayList<>();
       List<Notification> notificationList =
-          notificationRepository.getNotificationsByUserIdAndStatus(user.get().getId(), false);
+          notificationRepository.getNotificationsByUserId(user.get().getId());
       notificationList.forEach(
           notification -> {
             Optional<Page> page = pageRepository.getPageById(notification.getPageId());

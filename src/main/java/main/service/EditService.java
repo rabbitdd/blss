@@ -1,5 +1,6 @@
 package main.service;
 
+import main.bean.Status;
 import main.entity.*;
 import main.repository.*;
 import org.springframework.http.HttpStatus;
@@ -9,217 +10,149 @@ import org.springframework.stereotype.Service;
 import javax.jws.soap.SOAPBinding;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
 public class EditService {
 
-    private final ChangeRepository changeRepository;
-    private final UserRepository userRepository;
-    private final CheckRepository checkRepository;
-    private final SearchRepository searchRepository;
-    private final AuthorRepository authorRepository;
-    private final NotificationRepository notificationRepository;
-    private final PageRepository pageRepository;
-    private final NotificationService notificationService;
-    private final ValidationService validationService;
+  private final ChangeRepository changeRepository;
+  private final UserRepository userRepository;
+  private final CheckRepository checkRepository;
+  private final SearchRepository searchRepository;
+  private final AuthorRepository authorRepository;
+  private final NotificationRepository notificationRepository;
+  private final PageRepository pageRepository;
+  private final NotificationService notificationService;
+  private final ValidationService validationService;
 
-    public EditService(
-            ChangeRepository changeRepository,
-            UserRepository userRepository,
-            CheckRepository checkRepository,
-            SearchRepository searchRepository, AuthorRepository authorRepository,
-            NotificationRepository notificationRepository,
-            PageRepository pageRepository,
-            NotificationService notificationService,
-            ValidationService validationService) {
-        this.changeRepository = changeRepository;
-        this.userRepository = userRepository;
-        this.checkRepository = checkRepository;
-        this.searchRepository = searchRepository;
-        this.authorRepository = authorRepository;
-        this.notificationRepository = notificationRepository;
-        this.pageRepository = pageRepository;
-        this.notificationService = notificationService;
-        this.validationService = validationService;
+  public EditService(
+      ChangeRepository changeRepository,
+      UserRepository userRepository,
+      CheckRepository checkRepository,
+      SearchRepository searchRepository,
+      AuthorRepository authorRepository,
+      NotificationRepository notificationRepository,
+      PageRepository pageRepository,
+      NotificationService notificationService,
+      ValidationService validationService) {
+    this.changeRepository = changeRepository;
+    this.userRepository = userRepository;
+    this.checkRepository = checkRepository;
+    this.searchRepository = searchRepository;
+    this.authorRepository = authorRepository;
+    this.notificationRepository = notificationRepository;
+    this.pageRepository = pageRepository;
+    this.notificationService = notificationService;
+    this.validationService = validationService;
+  }
+
+  public Long addChange(Long id, String change, Long userId) {
+    Optional<Page> page = pageRepository.getPageById(id);
+    Change currentChange = new Change();
+    currentChange.setText(change);
+    currentChange.setPageId(id);
+    currentChange.setOldText(page.get().getText());
+    currentChange.setUserId(userId);
+    currentChange.setIs_confirmed(Status.NOT_CONFIRMED.toString());
+    return changeRepository.save(currentChange).getId();
+  }
+
+  // todo переделать на респонс объект
+  public boolean editWithApprove(Request request) {
+    if (validationService.validationRequestPage(request.getPage())) {
+      Optional<User> user = userRepository.getUserByLogin(request.getUserLogin());
+      user.ifPresent(
+          value -> {
+            notificationService.sendConfirmationsToAllCoAuthors(
+                value.getId(),
+                request.getPage(),
+                addChange(request.getPage().getId(), request.getComment(), value.getId()));
+          });
+      return true;
     }
+    return false;
+  }
 
-    public boolean addChange(Long id, String change) {
-        Optional<Change> check = changeRepository.getChangeByPageId(id);
-        if (check.isPresent()) {
-            return false;
+  public ResponseEntity<List<ChangeAnswer>> getChanges(String username, String name, String flag) {
+    Optional<Page> optionalPage = searchRepository.getPageByName(name);
+    Optional<User> userOptional = userRepository.getUserByLogin(username);
+    if (optionalPage.isPresent() && userOptional.isPresent()) {
+      Page page = optionalPage.get();
+      User user = userOptional.get();
+      if (user.getRole().equals(page.getRole()) || user.getRole().equals("admin")) {
+        List<ChangeAnswer> answer = new ArrayList<>();
+        List<Change> changes = changeRepository.getAllByPageId(page.getId());
+        for (Change change : changes) {
+          if (Objects.equals(change.getIs_confirmed(), flag)) {
+            answer.add(
+                new ChangeAnswer(
+                    change.getId(),
+                    change.getText(),
+                    change.getOldText(),
+                    name,
+                    userRepository.getUserById(change.getUserId()).getLogin()));
+          }
         }
-        Change change1 = new Change();
-        change1.setText(change);
-        change1.setPageId(id);
-        changeRepository.save(change1);
-        return addChecks(id);
+        return new ResponseEntity<>(answer, HttpStatus.OK);
+      } else {
+        return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+      }
+    } else {
+      return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
     }
+  }
 
-    public boolean editWithApprove(Request request) {
-        if (validationService.validationRequestPage(request.getPage())) {
-            Optional<User> user = userRepository.getUserByLogin(request.getUserLogin());
-            user.ifPresent(
-                    value ->
-                            notificationService.sendConfirmationsToAllCoAuthors(
-                                    value.getId(), request.getPage()));
-            return true;
+  //    public ResponseEntity<List<ChangeAnswer>> getWaitingChanges(String username, String name){
+  //        Optional<Page> optionalPage = searchRepository.getPageByName(name);
+  //        Optional<User> userOptional = userRepository.getUserByLogin(username);
+  //        if(optionalPage.isPresent() && userOptional.isPresent()){
+  //            Page page = optionalPage.get();
+  //            User user = userOptional.get();
+  //            if(user.getRole().equals(page.getRole()) || user.getRole().equals("admin")){
+  //                List<ChangeAnswer> answer = new ArrayList<>();
+  //                List<Change> changes = changeRepository.getAllByPageId(page.getId());
+  //                for (Change change : changes) {
+  //                    if (change.getIs_confirmed() == null) {
+  //                        answer.add(new ChangeAnswer(change.getId(), change.getText(),
+  // change.getOldText(), name, userRepository.getUserById(change.getUserId()).getLogin()));
+  //                    }
+  //                }
+  //                return new ResponseEntity<>(answer, HttpStatus.OK);
+  //            }
+  //            else{
+  //                return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+  //            }
+  //        }
+  //        else{
+  //            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+  //        }
+  //    }
+
+  private void updateStatus(Change change) {
+    List<Check> checks = checkRepository.getAllByChangeId(change.getId());
+    int sum = 0;
+    boolean flag = true;
+    for (Check check : checks) {
+      if (check.getIs_confirmed() == null) {
+        sum++;
+      } else {
+        if (!check.getIs_confirmed()) {
+          flag = false;
         }
-        return false;
+      }
     }
-
-    public boolean checkAllNotification(List<Notification> notifications) {
-        return notifications.stream().allMatch(Notification::getStatus);
+    if (sum == 0) {
+      changeRepository.setUserInfoById(flag, change.getId());
     }
+  }
 
-    private boolean addChecks(Long id) {
-        List<User> users = userRepository.getAllByRole("admin");
-        if (users.size() >= 3) {
-            Change change = changeRepository.getChangeByPageId(id).get();
-            User user;
-            Check check;
-            long random;
-            for (int i = 0; i < 3; i++) {
-                random = Math.round(Math.random() * (users.size() - 1));
-                user = users.get((int) random);
-                check = new Check();
-                check.setChangeId(change.getId());
-                check.setUserId(user.getId());
-                checkRepository.save(check);
-                users.remove((int) random);
-            }
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    public String getStatus(Long id) {
-        Optional<Change> change = changeRepository.getChangeByPageId(id);
-        if (!change.isPresent()) {
-            return "noting to check";
-        } else {
-            updateStatus(change.get());
-            Change ch = changeRepository.getChangeByPageId(id).get();
-            if (ch.getIs_confirmed() == null) {
-                return "still under review";
-            } else {
-                if (ch.getIs_confirmed()) {
-                    return "Everything is fine";
-                }
-                else{
-                    return "not accepted";
-                }
-            }
-        }
-    }
-
-    public ResponseEntity<List<ChangeAnswer>> getChanges(String username, String name, boolean flag){
-        Optional<Page> optionalPage = searchRepository.getPageByName(name);
-        Optional<User> userOptional = userRepository.getUserByLogin(username);
-        if(optionalPage.isPresent() && userOptional.isPresent()){
-            Page page = optionalPage.get();
-            User user = userOptional.get();
-            if(user.getRole().equals(page.getRole()) || user.getRole().equals("admin")){
-                List<ChangeAnswer> answer = new ArrayList<>();
-                List<Change> changes = changeRepository.getAllByPageId(page.getId());
-                for (Change change : changes) {
-                    if ((change.getIs_confirmed() != null && change.getIs_confirmed() == flag)) {
-                        answer.add(new ChangeAnswer(change.getId(), change.getText(), change.getOldText(), name, userRepository.getUserById(change.getUserId()).getLogin()));
-                    }
-                }
-                return new ResponseEntity<>(answer, HttpStatus.OK);
-            }
-            else{
-                return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
-            }
-        }
-        else{
-            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
-        }
-    }
-
-    public ResponseEntity<List<ChangeAnswer>> getWaitingChanges(String username, String name){
-        Optional<Page> optionalPage = searchRepository.getPageByName(name);
-        Optional<User> userOptional = userRepository.getUserByLogin(username);
-        if(optionalPage.isPresent() && userOptional.isPresent()){
-            Page page = optionalPage.get();
-            User user = userOptional.get();
-            if(user.getRole().equals(page.getRole()) || user.getRole().equals("admin")){
-                List<ChangeAnswer> answer = new ArrayList<>();
-                List<Change> changes = changeRepository.getAllByPageId(page.getId());
-                for (Change change : changes) {
-                    if (change.getIs_confirmed() == null) {
-                        answer.add(new ChangeAnswer(change.getId(), change.getText(), change.getOldText(), name, userRepository.getUserById(change.getUserId()).getLogin()));
-                    }
-                }
-                return new ResponseEntity<>(answer, HttpStatus.OK);
-            }
-            else{
-                return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
-            }
-        }
-        else{
-            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
-        }
-    }
-
-    private void updateStatus(Change change) {
-        List<Check> checks = checkRepository.getAllByChangeId(change.getId());
-        int sum = 0;
-        boolean flag = true;
-        for (Check check : checks) {
-            if (check.getIs_confirmed() == null) {
-                sum++;
-            } else {
-                if (!check.getIs_confirmed()) {
-                    flag = false;
-                }
-            }
-        }
-        if (sum == 0) {
-            changeRepository.setUserInfoById(flag, change.getId());
-        }
-    }
-
-    public String makeCommit(Long id) {
-        Optional<Change> change = changeRepository.getChangeByPageId(id);
-        if (!change.isPresent()) {
-            return "noting to commit";
-        } else {
-            updateStatus(change.get());
-            Change ch = changeRepository.getChangeByPageId(id).get();
-            if (ch.getIs_confirmed() == null) {
-                return "still under review";
-            } else {
-                if (ch.getIs_confirmed()) {
-                    return commit(id);
-                } else {
-                    return "not accepted";
-                }
-            }
-        }
-    }
-
-    // todo rewrite logic of method
-
-    public boolean approveEditPageForOneUser(Long userId, Long senderId) {
-        List<Notification> notifications =
-                notificationRepository.getNotificationsByUserIdAndUserSenderId(userId, senderId);
-        notifications.forEach(
-                notification -> {
-                    notification.setStatus(true);
-                    notificationRepository.save(notification);
-                });
-        return true;
-    }
-
-    private String commit(Long id){
-        Change change = changeRepository.getChangeByPageId(id).get();
-        checkRepository.deleteAllByChangeId(change.getId());
-        changeRepository.deleteByPageId(id);
-        String string = change.getText();
-        searchRepository.setUserInfoById(string, id);
-        return "everything was updated";
-    }
+  private String commit(Long id) {
+    Change change = changeRepository.getChangeByPageId(id).get();
+    checkRepository.deleteAllByChangeId(change.getId());
+    changeRepository.deleteByPageId(id);
+    String string = change.getText();
+    searchRepository.setUserInfoById(string, id);
+    return "everything was updated";
+  }
 }

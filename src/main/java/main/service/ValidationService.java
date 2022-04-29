@@ -65,34 +65,34 @@ public class ValidationService {
   //    }
   //    // TODO check the comments
 
-  public boolean validation(Request request) {
-    Page page = request.getPage();
-    String userLogin = request.getUserLogin();
-    String comment = request.getComment();
-    return userExist(userLogin) && pageToUserVerification(page, userLogin);
-  }
-
-  public long changeToAdminValidation(Verdict verdict) {
-    if (!(userHasValidRole(verdict.getLogin()) && pageExist(verdict.getPageName()))) {
-      return -1;
-    } else {
-      Page page = searchRepository.getPageByName(verdict.getPageName()).get();
-      if (!changeRepository.existsByPageId(page.getId())) {
-        return -1;
-      }
-      Change change = changeRepository.getChangeByPageId(page.getId()).get();
-      User user = userRepository.getUserByLogin(verdict.getLogin()).get();
-      List<Check> checks = checkRepository.getAllByUserId(user.getId());
-      long index = -1;
-      for (Check check : checks) {
-        if (check.getChangeId().equals(change.getId())) {
-          index = check.getId();
-          break;
-        }
-      }
-      return index;
-    }
-  }
+//  public boolean validation(Request request) {
+//    Page page = request.getPage();
+//    String userLogin = request.getUserLogin();
+//    String comment = request.getComment();
+//    return userExist(userLogin) && pageToUserVerification(page, userLogin);
+//  }
+//
+//  public long changeToAdminValidation(Verdict verdict) {
+//    if (!(userHasValidRole(verdict.getLogin()) && pageExist(verdict.getPageName()))) {
+//      return -1;
+//    } else {
+//      Page page = searchRepository.getPageByName(verdict.getPageName()).get();
+//      if (!changeRepository.existsByPageId(page.getId())) {
+//        return -1;
+//      }
+//      Change change = changeRepository.getChangeByPageId(page.getId()).get();
+//      User user = userRepository.getUserByLogin(verdict.getLogin()).get();
+//      List<Check> checks = checkRepository.getAllByUserId(user.getId());
+//      long index = -1;
+//      for (Check check : checks) {
+//        if (check.getChangeId().equals(change.getId())) {
+//          index = check.getId();
+//          break;
+//        }
+//      }
+//      return index;
+//    }
+//  }
 
   public boolean validationRequestPage(Page page) {
     return Stream.of(page.getId(), page.getOwner(), page.getName(), page.getRole(), page.getText())

@@ -23,8 +23,11 @@ public class Notification {
   private Long userSenderId;
 
   @Column(name = "status")
-  private Boolean status;
+  private String status;
 
   @Column(name = "page_id")
   private Long pageId;
+
+  @Column(name = "change_id")
+  private Long changeId;
 }

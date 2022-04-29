@@ -1,5 +1,6 @@
 package main.controller;
 
+import main.bean.Status;
 import main.entity.Change;
 import main.entity.ChangeAnswer;
 import main.entity.Request;
@@ -31,31 +32,6 @@ public class EditController {
 
   }
 
-  @GetMapping("/getStatus")
-  public String getStatus(@RequestParam String login, @RequestParam Long id){
-
-    // todo получить статус по конкретному изменения в формате json
-    return "";
-//    if(!validationService.validator(login, id)){
-//      return "no access";
-//    }
-//    else {
-//        return editService.getStatus(id);
-//    }
-  }
-
-//  @PostMapping("/editWithApprove")
-//  public boolean editWithApprove(Request request) {
-//    return editService.editWithApprove(request);
-//  }
-
-  @PostMapping("/approve")
-  public boolean approveEditPageForOneUser(@RequestParam String userLogin, @RequestParam String senderLogin, @RequestParam String articleName) {
-    // todo approveEditPageForOneUser();
-    return true;
-    // return editService.approveEditPageForOneUser();
-  }
-
 //  @GetMapping("/commit")
 //  public String makeCommit(@RequestParam String login, @RequestParam Long id){
 //    if(!validationService.validator(login, id)){
@@ -67,12 +43,8 @@ public class EditController {
 //  }
 
   @GetMapping("/getChanges")
-  public ResponseEntity<List<ChangeAnswer>> getСonfirmedСhanges(@RequestParam String login, @RequestParam String name, @RequestParam boolean flag){
-    return editService.getChanges(login, name, flag);
+  public ResponseEntity<List<ChangeAnswer>> getConfirmedChanges(@RequestParam String login, @RequestParam String name, @RequestParam Status status){
+    return editService.getChanges(login, name, status.toString());
   }
 
-  @GetMapping("/getWaitingChanges")
-  public ResponseEntity<List<ChangeAnswer>> getWaitingChanges(@RequestParam String login, @RequestParam String name){
-    return editService.getWaitingChanges(login, name);
-  }
 }

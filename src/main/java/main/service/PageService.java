@@ -1,9 +1,6 @@
 package main.service;
 
-import main.entity.Author;
-import main.entity.Page;
-import main.entity.Request;
-import main.entity.User;
+import main.entity.*;
 import main.repository.AuthorRepository;
 import main.repository.PageRepository;
 import main.repository.UserRepository;
@@ -42,9 +39,8 @@ public class PageService {
       if (user.isPresent()) {
         Author author = new Author();
         author.setUserId(user.get().getId());
-        author.setPageId(page.getId());
+        author.setPageId(pageRepository.save(page).getId());
         authorRepository.save(author);
-        pageRepository.save(page);
         return new ResponseEntity<>(
             "Страница создана пользователем c логином " + user.get().getLogin(),
             HttpStatus.CREATED);
@@ -59,7 +55,14 @@ public class PageService {
   }
 
   private boolean validationRequestPage(Page page) {
-    return Stream.of(page.getId(), page.getOwner(), page.getName(), page.getRole(), page.getText())
+    return Stream.of(page.getOwner(), page.getName(), page.getRole(), page.getText())
         .noneMatch(Objects::isNull);
+  }
+
+  public void updatePage(Change change) {
+    Optional<Page> page = pageRepository.getPageById(change.getPageId());
+    Page currentPage = page.get();
+    currentPage.setText(change.getText());
+    pageRepository.save(currentPage);
   }
 }

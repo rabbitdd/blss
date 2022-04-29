@@ -16,6 +16,8 @@ public interface ChangeRepository extends JpaRepository<Change, Long> {
 
     List<Change> getAllByPageId(Long id);
 
+    Optional<Change> getChangeById(Long id);
+
     Boolean existsByPageId(Long pageId);
 
     @Transactional
