@@ -12,6 +12,8 @@ import lombok.Setter;
 public class Verdict {
   private String comment;
   private boolean is_confirmed;
-  private String login;
+  private String userLogin;
+  private String whoToConfirm;
   private String pageName;
+  private String responseVerdictAns;
 }

@@ -1,5 +1,6 @@
 package main.controller;
 
+import lombok.AllArgsConstructor;
 import main.entity.Page;
 import main.entity.User;
 import main.service.RecommendationService;
@@ -13,12 +14,13 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
+@AllArgsConstructor
 public class SearchController {
-  @Autowired SearchService searchService;
+  private final SearchService searchService;
 
-  @Autowired UserService userService;
+  private final UserService userService;
 
-  @Autowired RecommendationService recommendationService;
+  private final RecommendationService recommendationService;
 
   @GetMapping("/page")
   public String getPage(@RequestParam String login, @RequestParam String name) {
