@@ -11,7 +11,7 @@ import lombok.Setter;
 @AllArgsConstructor
 public class Verdict {
   private String comment;
-  private boolean is_confirmed;
+  private String is_confirmed;
   private String userLogin;
   private String whoToConfirm;
   private String pageName;

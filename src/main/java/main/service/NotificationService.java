@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class NotificationService implements UserFinder {
@@ -22,9 +23,11 @@ public class NotificationService implements UserFinder {
   private final PageService pageService;
 
   public NotificationService(
-          AuthorRepository authorRepository,
-          NotificationRepository notificationRepository,
-          UserRepository userRepository, ChangeRepository changeRepository, PageService pageService) {
+      AuthorRepository authorRepository,
+      NotificationRepository notificationRepository,
+      UserRepository userRepository,
+      ChangeRepository changeRepository,
+      PageService pageService) {
     this.authorRepository = authorRepository;
     this.notificationRepository = notificationRepository;
     this.userRepository = userRepository;
@@ -69,17 +72,25 @@ public class NotificationService implements UserFinder {
     if (user.isPresent()) {
       return ResponseEntity.status(HttpStatus.OK)
           .body(
-              this.notificationRepository.getNotificationsByUserId(
-                  user.get().getId()));
+              this.notificationRepository.getNotificationsByUserId(user.get().getId()).stream()
+                  .filter(
+                      notification ->
+                          notification.getStatus().equals(Status.NOT_CONFIRMED.toString()))
+                  .collect(Collectors.toList()));
     }
-    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Пользователя с логином " + userLogin + " не существует !");
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+        .body("Пользователя с логином " + userLogin + " не существует !");
   }
 
   public String getAllNotificationsByChangeId(Long changeId, Long userId, Long pageId) {
 
     List<Notification> notificationList = notificationRepository.getAllByChangeId(changeId);
-    boolean verdict = notificationList.stream().allMatch(notification -> notification.getStatus().equals(Status.TRUE.toString()));
-    boolean verdictFalse = notificationList.stream().anyMatch(notification -> notification.getStatus().equals(Status.FALSE.toString()));
+    boolean verdict =
+        notificationList.stream()
+            .allMatch(notification -> notification.getStatus().equals(Status.TRUE.toString()));
+    boolean verdictFalse =
+        notificationList.stream()
+            .anyMatch(notification -> notification.getStatus().equals(Status.FALSE.toString()));
 
     if (verdict) {
       Optional<Change> changeById = changeRepository.getChangeById(changeId);
@@ -87,7 +98,8 @@ public class NotificationService implements UserFinder {
       change.setIs_confirmed(Status.TRUE.toString());
       changeRepository.save(change);
 
-      if (authorRepository.findAuthorsByPageId(pageId).stream().noneMatch(author -> Objects.equals(author.getUserId(), userId))) {
+      if (authorRepository.findAuthorsByPageId(pageId).stream()
+          .noneMatch(author -> Objects.equals(author.getUserId(), userId))) {
         Author author = new Author();
         author.setUserId(userId);
         author.setPageId(pageId);
@@ -95,12 +107,17 @@ public class NotificationService implements UserFinder {
       }
       pageService.updatePage(change);
 
-
       return Status.TRUE.toString();
     }
 
-    if (verdictFalse)
+    if (verdictFalse) {
+      Optional<Change> changeById = changeRepository.getChangeById(changeId);
+      Change change = changeById.get();
+      change.setIs_confirmed(Status.FALSE.toString());
+      changeRepository.save(change);
       return Status.FALSE.toString();
+    }
+
     return Status.NOT_CONFIRMED.toString();
   }
 }

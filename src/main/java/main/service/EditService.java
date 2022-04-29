@@ -72,7 +72,7 @@ public class EditService {
             notificationService.sendConfirmationsToAllCoAuthors(
                 value.getId(),
                     page,
-                addChange(page.getId(), request.getComment(), value.getId()));
+                addChange(page.getId(), request.getText(), value.getId()));
           });
       return true;
     }

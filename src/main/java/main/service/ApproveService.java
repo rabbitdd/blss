@@ -50,9 +50,10 @@ public class ApproveService {
               Status.NOT_CONFIRMED.toString());
       if (notification.isPresent()) {
         Notification currentNotification = notification.get();
-        currentNotification.setStatus(Status.TRUE.toString());
+        String oldStatus = currentNotification.getStatus();
+        currentNotification.setStatus(verdict.getIs_confirmed());
         notificationRepository.save(currentNotification);
-        verdict.setResponseVerdictAns("Подтверждение прошло успешно");
+        verdict.setResponseVerdictAns("Статус изменился с " + oldStatus + " на " + verdict.getIs_confirmed());
 
         checkApproveStatus(
             currentNotification.getChangeId(), secondUser.get().getId(), page.get().getId());

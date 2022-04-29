@@ -21,7 +21,7 @@ public class ApproveController {
     if (approveService
         .approve(verdict)
         .getResponseVerdictAns()
-        .equals("Подтверждение прошло успешно"))
+        .contains("Статус изменился"))
       return new ResponseEntity<>(verdict, HttpStatus.ACCEPTED);
     return new ResponseEntity<>(verdict, HttpStatus.NOT_ACCEPTABLE);
   }
