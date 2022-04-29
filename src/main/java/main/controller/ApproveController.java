@@ -1,25 +1,20 @@
 package main.controller;
 
-import main.entity.Notification;
+import lombok.AllArgsConstructor;
 import main.entity.Verdict;
 import main.service.ApproveService;
 import main.service.NotificationService;
 import main.service.ValidationService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.xml.ws.spi.http.HttpContext;
-import java.util.Collections;
-import java.util.List;
-
+@AllArgsConstructor
 @RestController("/approve")
 public class ApproveController {
 
-  @Autowired ApproveService approveService;
-  @Autowired ValidationService validationService;
-  @Autowired NotificationService notificationService;
+  private final ApproveService approveService;
+  private final NotificationService notificationService;
 
   @PostMapping("/verdict")
   public ResponseEntity<Verdict> approveEditPageForOneUser(@RequestBody Verdict verdict) {

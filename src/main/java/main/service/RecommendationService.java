@@ -2,6 +2,8 @@ package main.service;
 
 import main.entity.Page;
 import main.entity.User;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -11,13 +13,13 @@ public class RecommendationService {
 
   public RecommendationService() {}
 
-  public String getAnswer(Page page, User user) {
+  public ResponseEntity<String> getAnswer(Page page, User user) {
     String role = page.getRole();
     String uRole = user.getRole();
     if (chechAccess(role, uRole)) {
-      return page.getText();
+      return new ResponseEntity<>(page.getText(), HttpStatus.OK);
     } else {
-      return "no access";
+      return  new ResponseEntity<>(user.getLogin() + " " + page.getName(), HttpStatus.BAD_REQUEST);
     }
   }
 
@@ -25,7 +27,7 @@ public class RecommendationService {
     return role.equals(uRole) || uRole.equals("admin");
   }
 
-  public String getRecommendations(List<Page> pages, User user, String name) {
+  public ResponseEntity<String> getRecommendations(List<Page> pages, User user, String name) {
     StringBuilder answer = new StringBuilder();
     for (Page page : pages) {
       if (chechAccess(page.getRole(), user.getRole())
@@ -34,9 +36,9 @@ public class RecommendationService {
       }
     }
     if (answer.toString().length() == 0) {
-      return "no matches";
+      return new ResponseEntity<>("no matches", HttpStatus.OK);
     } else {
-      return answer.toString();
+      return new ResponseEntity<>(answer.toString(), HttpStatus.OK);
     }
   }
 }

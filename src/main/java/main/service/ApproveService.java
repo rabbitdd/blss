@@ -1,8 +1,12 @@
 package main.service;
 
-import main.bean.PageWithStatus;
-import main.entity.*;
-import main.repository.*;
+import main.entity.Notification;
+import main.entity.Page;
+import main.entity.User;
+import main.entity.Verdict;
+import main.repository.NotificationRepository;
+import main.repository.PageRepository;
+import main.repository.UserRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;

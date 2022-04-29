@@ -33,7 +33,7 @@ public class PageService {
 
   public ResponseEntity<String> addPage(Request request) {
     Page page = request.getPage();
-    if (this.validationRequestPage(page)) {
+    if (validationRequestPage(page)) {
       Optional<User> user = userRepository.getUserByLogin(request.getUserLogin());
       if (pageRepository.existsPageByName(page.getName()))
         return new ResponseEntity<>(
@@ -58,7 +58,7 @@ public class PageService {
     return new ResponseEntity<>("Страница не прошла валидацию !", HttpStatus.BAD_REQUEST);
   }
 
-  public boolean validationRequestPage(Page page) {
+  private boolean validationRequestPage(Page page) {
     return Stream.of(page.getId(), page.getOwner(), page.getName(), page.getRole(), page.getText())
         .noneMatch(Objects::isNull);
   }
