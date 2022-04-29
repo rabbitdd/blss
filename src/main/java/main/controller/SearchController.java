@@ -18,8 +18,6 @@ public class SearchController {
 
   @Autowired UserService userService;
 
-  @Autowired RecommendationService recommendationService;
-
   @GetMapping("/page")
   public String getPage(@RequestParam String login, @RequestParam String name) {
     // todo убрать в сервис
