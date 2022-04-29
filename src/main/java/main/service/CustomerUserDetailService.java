@@ -2,6 +2,8 @@ package main.service;
 
 import main.entity.User;
 import main.repository.UserRepository;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -37,15 +39,15 @@ public class CustomerUserDetailService implements UserDetailsService {
         user.getLogin(), user.getPassword(), authorities);
   }
 
-  public String addUser(User user) {
+  public ResponseEntity<String> addUser(User user) {
     try {
       user.setRole("USER");
       user.setActive(true);
       userRepository.save(user);
-      return "{\"token\": \"true\"}";
+      return new ResponseEntity<>("Успешно", HttpStatus.OK);
     } catch (Exception e) {
       e.printStackTrace();
-      return "{\"token\": \"err\"}";
+      return new ResponseEntity<>("Пользователь с таким логином уже существет", HttpStatus.FORBIDDEN);
     }
   }
 }

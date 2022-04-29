@@ -60,14 +60,19 @@ public class EditService {
 
   // todo переделать на респонс объект
   public boolean editWithApprove(Request request) {
-    if (validationService.validationRequestPage(request.getPage())) {
+    Optional<Page> optionalPage = pageRepository.getPageByName(request.getName());
+    if(!optionalPage.isPresent()){
+      return false;
+    }
+    Page page = optionalPage.get();
+    if (validationService.validationRequestPage(page)) {
       Optional<User> user = userRepository.getUserByLogin(request.getUserLogin());
       user.ifPresent(
           value -> {
             notificationService.sendConfirmationsToAllCoAuthors(
                 value.getId(),
-                request.getPage(),
-                addChange(request.getPage().getId(), request.getComment(), value.getId()));
+                    page,
+                addChange(page.getId(), request.getComment(), value.getId()));
           });
       return true;
     }

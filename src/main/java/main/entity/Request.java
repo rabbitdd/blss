@@ -11,7 +11,8 @@ import lombok.Setter;
 @AllArgsConstructor
 public class Request {
 
-  private Page page;
+  private String name;
+  private String text;
   private String userLogin;
   private String comment;
 }

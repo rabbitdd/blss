@@ -4,8 +4,11 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import main.entity.User;
+import main.entity.Verdict;
 import main.service.CustomerUserDetailService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,20 +23,20 @@ public class SecurityController {
   private final CustomerUserDetailService customerUserDetailService;
 
   @PostMapping("/auth")
-  public String getLoginPage(@RequestBody AuthUser user) {
+  public ResponseEntity<String> getLoginPage(@RequestBody AuthUser user) {
     System.out.println(user.toString());
     System.out.println("****");
     UserDetails securityUser = customerUserDetailService.loadUserByUsername(user.getLogin());
     BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
     if (encoder.matches(user.getPassword(), securityUser.getPassword())) {
-      return "{\"token\": \"true\"}";
+      return new ResponseEntity<>(securityUser.getPassword(), HttpStatus.OK);
     } else {
-      return "{\"token\": \"false\"}";
+      return new ResponseEntity<>("Неправильный логин или пароль", HttpStatus.BAD_REQUEST);
     }
   }
 
   @PostMapping("/signUp")
-  public String signUp(@RequestBody AuthUser user) {
+  public ResponseEntity<String> signUp(@RequestBody AuthUser user) {
     System.out.println(user.toString());
     System.out.println("sdsdsd");
     String hashPassword = new BCryptPasswordEncoder(12).encode(user.getPassword());
