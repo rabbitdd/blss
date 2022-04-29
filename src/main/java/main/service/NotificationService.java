@@ -3,23 +3,30 @@ package main.service;
 import main.entity.Author;
 import main.entity.Notification;
 import main.entity.Page;
+import main.entity.User;
 import main.repository.AuthorRepository;
 import main.repository.NotificationRepository;
+import main.repository.UserRepository;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @Service
 public class NotificationService implements UserFinder {
 
   private final AuthorRepository authorRepository;
   private final NotificationRepository notificationRepository;
+  private final UserRepository userRepository;
 
   public NotificationService(
-      AuthorRepository authorRepository, NotificationRepository notificationRepository) {
+      AuthorRepository authorRepository,
+      NotificationRepository notificationRepository,
+      UserRepository userRepository) {
     this.authorRepository = authorRepository;
     this.notificationRepository = notificationRepository;
+    this.userRepository = userRepository;
   }
 
   public void sendConfirmationsToAllCoAuthors(Long senderUser, Page page) {
@@ -51,7 +58,15 @@ public class NotificationService implements UserFinder {
     return usersId;
   }
 
-  public List<Notification> getNotification(Long userId) {
-    return notificationRepository.getNotificationsByUserId(userId);
+  public ResponseEntity<?> getAllNotifications(String userLogin) {
+
+    Optional<User> user = userRepository.getUserByLogin(userLogin);
+    if (user.isPresent()) {
+      return ResponseEntity.status(HttpStatus.OK)
+          .body(
+              this.notificationRepository.getNotificationsByUserIdAndStatus(
+                  user.get().getId(), false));
+    }
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Пользователя с логином " + userLogin + " не существует !");
   }
 }

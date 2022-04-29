@@ -1,6 +1,7 @@
 package main.repository;
 
 import main.entity.Page;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -8,6 +9,7 @@ import org.springframework.stereotype.Component;
 
 import javax.transaction.Transactional;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Component
@@ -16,8 +18,6 @@ public interface SearchRepository extends JpaRepository<Page, Long> {
   Page getPageById(Long id);
 
   Optional<Page> getPageByName(String name);
-
-  ArrayList<Page> getAllBy();
 
   Boolean existsPageByName(String name);
 

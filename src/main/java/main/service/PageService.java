@@ -7,6 +7,8 @@ import main.entity.User;
 import main.repository.AuthorRepository;
 import main.repository.PageRepository;
 import main.repository.UserRepository;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
@@ -29,24 +31,34 @@ public class PageService {
     this.userRepository = userRepository;
   }
 
-  public String addPage(Request request) {
+  public ResponseEntity<String> addPage(Request request) {
     Page page = request.getPage();
-    if (this.validationRequestPage(page)) {
+    if (validationRequestPage(page)) {
       Optional<User> user = userRepository.getUserByLogin(request.getUserLogin());
-      pageRepository.save(page);
+      if (pageRepository.existsPageByName(page.getName()))
+        return new ResponseEntity<>(
+            "Страница с таким именем уже существует !", HttpStatus.BAD_REQUEST);
       // todo если статья с таким именем уже есть, то отправить сообщение об ошбике
       if (user.isPresent()) {
         Author author = new Author();
         author.setUserId(user.get().getId());
         author.setPageId(page.getId());
         authorRepository.save(author);
+        pageRepository.save(page);
+        return new ResponseEntity<>(
+            "Страница создана пользователем c логином " + user.get().getLogin(),
+            HttpStatus.CREATED);
       }
-      return "page added";
+      return new ResponseEntity<>(
+          "Невозможно создать страницу, пользователя с логином "
+              + request.getUserLogin()
+              + " не существует !",
+          HttpStatus.BAD_REQUEST);
     }
-    return "page not added";
+    return new ResponseEntity<>("Страница не прошла валидацию !", HttpStatus.BAD_REQUEST);
   }
 
-  public boolean validationRequestPage(Page page) {
+  private boolean validationRequestPage(Page page) {
     return Stream.of(page.getId(), page.getOwner(), page.getName(), page.getRole(), page.getText())
         .noneMatch(Objects::isNull);
   }

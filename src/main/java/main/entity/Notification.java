@@ -24,4 +24,7 @@ public class Notification {
 
   @Column(name = "status")
   private Boolean status;
+
+  @Column(name = "page_id")
+  private Long pageId;
 }

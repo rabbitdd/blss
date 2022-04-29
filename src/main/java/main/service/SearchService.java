@@ -22,25 +22,21 @@ public class SearchService {
 
   public Page getPageByName(String name) {
     Optional<Page> page = searchRepository.getPageByName(name);
-    if (page.isPresent()) {
-      Page p = page.get();
-      return p;
-    }
-    return null;
+    return page.orElse(null);
   }
 
-  public Page getPageById(Long id) {
-    return searchRepository.getPageById(id);
-  }
+//  public Page getPageById(Long id) {
+//    return searchRepository.getPageById(id);
+//  }
 
-  public List<Page> getAll() {
-    return searchRepository.getAllBy();
-  }
+//  public List<Page> getAll() {
+//    return searchRepository.getAll();
+//  }
 
   public ResponseEntity<String> getAnswer(User user, String name){
       Page page = getPageByName(name);
       if(page == null){
-        List<Page> pageList = getAll();
+        List<Page> pageList = searchRepository.findAll();
         return recommendationService.getRecommendations(pageList, user, name);
       }
       return recommendationService.getAnswer(page, user);
