@@ -99,6 +99,7 @@ public class ValidationService {
         .noneMatch(Objects::isNull);
   }
 
+
   public boolean validator(String login, Long id) {
     Page page = searchRepository.getPageById(id);
     return userExist(login) && pageToUserVerification(page, login);

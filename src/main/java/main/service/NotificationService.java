@@ -60,7 +60,7 @@ public class NotificationService implements UserFinder {
     List<Long> usersId = new ArrayList<>();
     authors.forEach(
         author -> {
-          usersId.add(author.getId());
+          usersId.add(author.getUserId());
         });
 
     return usersId;

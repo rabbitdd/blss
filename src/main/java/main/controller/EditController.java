@@ -26,7 +26,7 @@ public class EditController {
   ApproveService approveService;
 
   @PostMapping("/edit")
-  public boolean editArticle(@RequestBody Request request) {
+  public ResponseEntity<?> editArticle(@RequestBody Request request) {
     // todo любой пользователь может предложить правку
     return editService.editWithApprove(request);
 

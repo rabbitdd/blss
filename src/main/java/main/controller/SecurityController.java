@@ -29,7 +29,7 @@ public class SecurityController {
     UserDetails securityUser = customerUserDetailService.loadUserByUsername(user.getLogin());
     BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
     if (encoder.matches(user.getPassword(), securityUser.getPassword())) {
-      return new ResponseEntity<>(securityUser.getPassword(), HttpStatus.OK);
+      return new ResponseEntity<>("Аутентификация прошла успешно", HttpStatus.OK);
     } else {
       return new ResponseEntity<>("Неправильный логин или пароль", HttpStatus.BAD_REQUEST);
     }

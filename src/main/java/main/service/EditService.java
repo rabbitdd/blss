@@ -59,24 +59,30 @@ public class EditService {
   }
 
   // todo переделать на респонс объект
-  public boolean editWithApprove(Request request) {
+  public ResponseEntity<?> editWithApprove(Request request) {
     Optional<Page> optionalPage = pageRepository.getPageByName(request.getName());
-    if(!optionalPage.isPresent()){
-      return false;
+    if (!optionalPage.isPresent()) {
+      return new ResponseEntity<>("Такой страницы не существует !", HttpStatus.BAD_REQUEST);
+    }
+    if (request.getText() == null) {
+      return new ResponseEntity<>("Текст для правки не содержит значений", HttpStatus.BAD_REQUEST);
     }
     Page page = optionalPage.get();
     if (validationService.validationRequestPage(page)) {
       Optional<User> user = userRepository.getUserByLogin(request.getUserLogin());
-      user.ifPresent(
-          value -> {
-            notificationService.sendConfirmationsToAllCoAuthors(
-                value.getId(),
-                    page,
-                addChange(page.getId(), request.getText(), value.getId()));
-          });
-      return true;
+      if (user.isPresent()) {
+        user.ifPresent(
+            value -> {
+              notificationService.sendConfirmationsToAllCoAuthors(
+                  value.getId(), page, addChange(page.getId(), request.getText(), value.getId()));
+            });
+        return new ResponseEntity<>("Запрос на редактирование принят в обработку", HttpStatus.OK);
+      }
+      return new ResponseEntity<>(
+          "Пользователя с таким логином не существует !", HttpStatus.BAD_REQUEST);
     }
-    return false;
+    return new ResponseEntity<>(
+        "Правка для страницы не проходит валидацию !", HttpStatus.BAD_REQUEST);
   }
 
   public ResponseEntity<List<ChangeAnswer>> getChanges(String username, String name, String flag) {

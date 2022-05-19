@@ -51,9 +51,10 @@ public class ApproveService {
       if (notification.isPresent()) {
         Notification currentNotification = notification.get();
         String oldStatus = currentNotification.getStatus();
-        currentNotification.setStatus(verdict.getIs_confirmed());
+        String newStatus = validateVerdictStatus(verdict.getIs_confirmed());
+        currentNotification.setStatus(newStatus);
         notificationRepository.save(currentNotification);
-        verdict.setResponseVerdictAns("Статус изменился с " + oldStatus + " на " + verdict.getIs_confirmed());
+        verdict.setResponseVerdictAns("Статус изменился с " + oldStatus + " на " + newStatus);
 
         checkApproveStatus(
             currentNotification.getChangeId(), secondUser.get().getId(), page.get().getId());
@@ -65,6 +66,12 @@ public class ApproveService {
 
     verdict.setResponseVerdictAns("Пользователи с такими логинами не найдены !");
     return verdict;
+  }
+
+  private String validateVerdictStatus(String status){
+    if ("TRUE".equals(status) || "FALSE".equals(status))
+      return status;
+    return "NOT_CONFIRMED";
   }
 
   private void checkApproveStatus(Long changeId, Long userId, Long pageId) {
