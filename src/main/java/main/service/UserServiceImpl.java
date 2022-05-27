@@ -2,6 +2,7 @@ package main.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import main.bean.XmlFileUser;
 import main.entity.Role;
 import main.entity.User;
 import main.repository.RoleRepository;
@@ -65,6 +66,11 @@ public class UserServiceImpl implements UserService, UserDetailsService {
   public User saveUser(User user) {
     log.info("Saving new user {} to database", user.getLogin());
     user.setPassword(passwordEncoder.encode(user.getPassword()));
+    try {
+      saveUsersInfo();
+    } catch (Exception e) {
+      log.info(e.getMessage());
+    }
     return userRepository.save(user);
   }
 
@@ -111,6 +117,11 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     log.info("Adding role {} to user {}", roleName, login);
     User user = userRepository.findUserByLogin(login);
     Role role = roleRepository.getRoleByName(roleName);
+    try {
+      saveUsersInfo();
+    } catch (Exception e) {
+      log.info(e.getMessage());
+    }
     user.getRoles().add(role);
   }
 
@@ -120,26 +131,12 @@ public class UserServiceImpl implements UserService, UserDetailsService {
   }
 
   public void saveUsersInfo() throws JAXBException, FileNotFoundException, XMLStreamException {
-//    XMLStreamWriter writer = XMLOutputFactory.newInstance().createXMLStreamWriter(new FileOutputStream("C:\\Users\\Никита\\Desktop\\itmo\\6 семестр\\БЛПС\\BLPS1\\src\\main\\resources\\info.xml"), StandardCharsets.UTF_8.name());
-//    writer.writeStartDocument();
-//    writer.writeStartElement("YOUR_ROOT_ELM");
-//    JAXBContext contextObj = JAXBContext.newInstance(User.class);
-//    Marshaller marshallerObj = contextObj.createMarshaller();
-//    marshallerObj.setProperty(Marshaller.JAXB_FRAGMENT, true);
-//    PartialUnmarshaler existing =
-
-
-//    File file = new File("C:\\Users\\Никита\\Desktop\\itmo\\6 семестр\\БЛПС\\BLPS1\\src\\main\\resources\\info.xml");
-//    List<User> users = findAll();
-//    JAXBContext contextObj = JAXBContext.newInstance(User.class);
-//    Marshaller marshallerObj = contextObj.createMarshaller();
-//    users.forEach(user -> {
-//      try {
-//        log.info("write ....");
-//        marshallerObj.marshal(user, file);
-//      } catch (JAXBException e) {
-//        e.printStackTrace();
-//      }
-//    });
+    File file = new File("C:\\Users\\Никита\\Desktop\\itmo\\6 семестр\\БЛПС\\BLPS1\\src\\main\\resources\\info.xml");
+    List<User> users = findAll();
+    XmlFileUser xmlFileUser = new XmlFileUser("users", users);
+    JAXBContext contextObj = JAXBContext.newInstance(XmlFileUser.class);
+    Marshaller marshallerObj = contextObj.createMarshaller();
+    marshallerObj.marshal(xmlFileUser, file);
+    log.info("write ....");
   }
 }
