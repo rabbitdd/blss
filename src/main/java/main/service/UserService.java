@@ -1,42 +1,19 @@
 package main.service;
 
+import main.entity.Role;
 import main.entity.User;
-import main.repository.UserRepository;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.stereotype.Service;
 
-import java.util.Optional;
+import java.util.List;
 
-@Service
-public class UserService {
+public interface UserService {
 
-  private final UserRepository userRepository;
-
-  public UserService(UserRepository userRepository) {
-    this.userRepository = userRepository;
-  }
-
-  public Long getUserId(String login) {
-    Optional<User> userOptional = userRepository.getUserByLogin(login);
-    if (userOptional.isPresent()) {
-      User user = userOptional.get();
-      return user.getId();
-    }
-    return (long) -1;
-  }
-
-  public User getUserById(long id) {
-    User user = userRepository.getUserById(id);
-    return user;
-  }
-
-  public User getUserByLogin(String login) {
-    Optional<User> userOptional = userRepository.getUserByLogin(login);
-    if (!userOptional.isPresent()) {
-      throw new UsernameNotFoundException("User not found");
-    }
-    return userOptional.get();
-  }
-
-
+  User getUserById(Long id);
+  User saveUser(User user);
+  Long getUserIdByLogin(String login);
+  User getUserByLogin(String login);
+  void saveRole(Role role);
+  List<User> findAll();
+  Boolean existsUserByLogin(String login);
+  void addRoleToUser(String login, String roleName);
+  Role getRoleByName(String name);
 }

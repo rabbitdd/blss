@@ -22,29 +22,26 @@ public class EditController {
 
   @Autowired PageService pageService;
 
-  @Autowired
-  ApproveService approveService;
+  @Autowired ApproveService approveService;
 
   @PostMapping("/edit")
   public ResponseEntity<?> editArticle(@RequestBody Request request) {
-    // todo любой пользователь может предложить правку
     return editService.editWithApprove(request);
-
   }
 
-//  @GetMapping("/commit")
-//  public String makeCommit(@RequestParam String login, @RequestParam Long id){
-//    if(!validationService.validator(login, id)){
-//      return "no access";
-//    }
-//    else {
-//      return editService.makeCommit(id);
-//    }
-//  }
+  //  @GetMapping("/commit")
+  //  public String makeCommit(@RequestParam String login, @RequestParam Long id){
+  //    if(!validationService.validator(login, id)){
+  //      return "no access";
+  //    }
+  //    else {
+  //      return editService.makeCommit(id);
+  //    }
+  //  }
 
   @GetMapping("/getChanges")
-  public ResponseEntity<List<ChangeAnswer>> getConfirmedChanges(@RequestParam String login, @RequestParam String name, @RequestParam Status status){
+  public ResponseEntity<List<ChangeAnswer>> getConfirmedChanges(
+      @RequestParam String login, @RequestParam String name, @RequestParam Status status) {
     return editService.getChanges(login, name, status.toString());
   }
-
 }

@@ -33,27 +33,26 @@ public class PageService {
     page.setName(request.getName());
     page.setText(request.getText());
     Optional<User> user = userRepository.getUserByLogin(request.getUserLogin());
-    if(!user.isPresent()){
+    if (!user.isPresent()) {
       return new ResponseEntity<>(
-              "Невозможно создать страницу, пользователя с логином "
-                      + request.getUserLogin()
-                      + " не существует !",
-              HttpStatus.BAD_REQUEST);
+          "Невозможно создать страницу, пользователя с логином "
+              + request.getUserLogin()
+              + " не существует !",
+          HttpStatus.BAD_REQUEST);
     }
     page.setOwner(user.get().getId());
-    page.setRole(user.get().getRole());
+    // page.setRole(user.get().getRole());
     if (validationRequestPage(page)) {
       if (pageRepository.existsPageByName(page.getName()))
         return new ResponseEntity<>(
             "Страница с таким именем уже существует !", HttpStatus.BAD_REQUEST);
       // todo если статья с таким именем уже есть, то отправить сообщение об ошбике
-        Author author = new Author();
-        author.setUserId(user.get().getId());
-        author.setPageId(pageRepository.save(page).getId());
-        authorRepository.save(author);
-        return new ResponseEntity<>(
-            "Страница создана пользователем c логином " + user.get().getLogin(),
-            HttpStatus.CREATED);
+      Author author = new Author();
+      author.setUserId(user.get().getId());
+      author.setPageId(pageRepository.save(page).getId());
+      authorRepository.save(author);
+      return new ResponseEntity<>(
+          "Страница создана пользователем c логином " + user.get().getLogin(), HttpStatus.CREATED);
     }
     return new ResponseEntity<>("Страница не прошла валидацию !", HttpStatus.BAD_REQUEST);
   }

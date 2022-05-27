@@ -7,7 +7,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import javax.jws.soap.SOAPBinding;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -58,7 +57,6 @@ public class EditService {
     return changeRepository.save(currentChange).getId();
   }
 
-  // todo переделать на респонс объект
   public ResponseEntity<?> editWithApprove(Request request) {
     Optional<Page> optionalPage = pageRepository.getPageByName(request.getName());
     if (!optionalPage.isPresent()) {
@@ -90,25 +88,20 @@ public class EditService {
     Optional<User> userOptional = userRepository.getUserByLogin(username);
     if (optionalPage.isPresent() && userOptional.isPresent()) {
       Page page = optionalPage.get();
-      User user = userOptional.get();
-      if (user.getRole().equals(page.getRole()) || user.getRole().equals("admin")) {
-        List<ChangeAnswer> answer = new ArrayList<>();
-        List<Change> changes = changeRepository.getAllByPageId(page.getId());
-        for (Change change : changes) {
-          if (Objects.equals(change.getIs_confirmed(), flag)) {
-            answer.add(
-                new ChangeAnswer(
-                    change.getId(),
-                    change.getText(),
-                    change.getOldText(),
-                    name,
-                    userRepository.getUserById(change.getUserId()).getLogin()));
-          }
+      List<ChangeAnswer> answer = new ArrayList<>();
+      List<Change> changes = changeRepository.getAllByPageId(page.getId());
+      for (Change change : changes) {
+        if (Objects.equals(change.getIs_confirmed(), flag)) {
+          answer.add(
+              new ChangeAnswer(
+                  change.getId(),
+                  change.getText(),
+                  change.getOldText(),
+                  name,
+                  userRepository.getUserById(change.getUserId()).getLogin()));
         }
-        return new ResponseEntity<>(answer, HttpStatus.OK);
-      } else {
-        return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
       }
+      return new ResponseEntity<>(answer, HttpStatus.OK);
     } else {
       return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
     }

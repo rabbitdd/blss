@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<user>
+    <id>23</id>
+    <login>mishanin</login>
+    <password>$2a$10$yQw7O7CiEZFhx90vAodsyuhymtvAAF3UM3hH3aCCiD9D69HCaLWkm</password>
+    <roles>
+        <id>5</id>
+        <name>ROLE_READER</name>
+    </roles>
+</user>
