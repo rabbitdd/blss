@@ -51,15 +51,19 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     httpSecurity.authorizeRequests().antMatchers(GET, "/users").hasAnyAuthority("ROLE_ADMIN");
     httpSecurity.authorizeRequests().antMatchers(POST, "/user/**").hasAnyAuthority("ROLE_ADMIN");
     httpSecurity.authorizeRequests().antMatchers(POST, "/user/**").hasAnyAuthority("ROLE_ADMIN");
+    httpSecurity.authorizeRequests().antMatchers(POST, "/role/**").hasAnyAuthority("ROLE_ADMIN");
+    httpSecurity.authorizeRequests().antMatchers(GET, "/role/**").hasAnyAuthority("ROLE_ADMIN");
+    httpSecurity.authorizeRequests().antMatchers(POST, "/verdict").hasAnyAuthority("ROLE_WRITER", "ROLE_EDITOR");
+    httpSecurity.authorizeRequests().antMatchers(GET, "/getAllNotifications", "/getAllApprovePages").hasAnyAuthority("ROLE_WRITER", "ROLE_EDITOR");
     httpSecurity
         .authorizeRequests()
-        .antMatchers(POST, "/edit", "/verdict")
+        .antMatchers(POST, "/edit")
         .hasAnyAuthority("ROLE_EDITOR");
     httpSecurity
         .authorizeRequests()
         .antMatchers(GET, "/getChanges", "/getAllApprovePages", "/getAllNotification")
         .hasAnyAuthority("ROLE_EDITOR");
-    httpSecurity.authorizeRequests().antMatchers(POST, "/add").hasAnyAuthority("ROLE_WRITER");
+    httpSecurity.authorizeRequests().antMatchers(POST, "/page/add").hasAnyAuthority("ROLE_WRITER");
     httpSecurity.authorizeRequests().anyRequest().authenticated();
     httpSecurity.addFilter(customAuthFilter);
     httpSecurity.addFilterBefore(

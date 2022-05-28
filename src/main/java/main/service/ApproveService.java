@@ -5,9 +5,12 @@ import main.entity.Notification;
 import main.entity.Page;
 import main.entity.User;
 import main.entity.Verdict;
+import main.exceptions.TransactionException;
 import main.repository.NotificationRepository;
 import main.repository.PageRepository;
 import main.repository.UserRepository;
+import main.transaction.MKTransactionManager;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -36,29 +39,36 @@ public class ApproveService {
     this.pageRepository = pageRepository;
   }
 
-  public Verdict approve(Verdict verdict) {
-    Optional<User> firstUser = userRepository.getUserByLogin(verdict.getUserLogin());
+  @Autowired
+  MKTransactionManager mkTransactionManager;
+
+  public Verdict approve(Verdict verdict, String login) {
+    Optional<User> firstUser = userRepository.getUserByLogin(login);
     Optional<User> secondUser = userRepository.getUserByLogin(verdict.getWhoToConfirm());
     Optional<Page> page = pageRepository.getPageByName(verdict.getPageName());
 
     if (firstUser.isPresent() && secondUser.isPresent() && page.isPresent()) {
       Optional<Notification> notification =
-          notificationRepository.getTopByUserIdAndUserSenderIdAndPageIdAndStatusOrderByIdDesc(
-              firstUser.get().getId(),
-              secondUser.get().getId(),
-              page.get().getId(),
-              Status.NOT_CONFIRMED.toString());
+              notificationRepository.getTopByUserIdAndUserSenderIdAndPageIdAndStatusOrderByIdDesc(
+                      firstUser.get().getId(),
+                      secondUser.get().getId(),
+                      page.get().getId(),
+                      Status.NOT_CONFIRMED.toString());
       if (notification.isPresent()) {
         Notification currentNotification = notification.get();
         String oldStatus = currentNotification.getStatus();
         String newStatus = validateVerdictStatus(verdict.getIs_confirmed());
         currentNotification.setStatus(newStatus);
-        notificationRepository.save(currentNotification);
-        verdict.setResponseVerdictAns("Статус изменился с " + oldStatus + " на " + newStatus);
-
-        checkApproveStatus(
-            currentNotification.getChangeId(), secondUser.get().getId(), page.get().getId());
-        return verdict;
+        try {
+          checkApproveStatus(
+                  currentNotification.getChangeId(), secondUser.get().getId(), page.get().getId(),currentNotification);
+          verdict.setResponseVerdictAns("Статус изменился с " + oldStatus + " на " + newStatus);
+          return verdict;
+        }
+        catch (TransactionException e){
+          verdict.setResponseVerdictAns("Статус не изменился, возникла ошибка: " + e.getMessage());
+          return verdict;
+        }
       }
       verdict.setResponseVerdictAns("Для этих пользователей нет подтверждений !");
       return verdict;
@@ -74,8 +84,8 @@ public class ApproveService {
     return "NOT_CONFIRMED";
   }
 
-  private void checkApproveStatus(Long changeId, Long userId, Long pageId) {
-    notificationService.getAllNotificationsByChangeId(changeId, userId, pageId);
+  private void checkApproveStatus(Long changeId, Long userId, Long pageId, Notification notification) throws TransactionException {
+    notificationService.getAllNotificationsByChangeId(changeId, userId, pageId, notification);
   }
 
   public ResponseEntity<?> getApprovePages(String login) {
@@ -83,15 +93,16 @@ public class ApproveService {
     if (user.isPresent()) {
       List<Page> pagesWithStatus = new ArrayList<>();
       List<Notification> notificationList =
-          notificationRepository.getNotificationsByUserId(user.get().getId());
+              notificationRepository.getNotificationsByUserId(user.get().getId());
       notificationList.forEach(
-          notification -> {
-            Optional<Page> page = pageRepository.getPageById(notification.getPageId());
-            page.ifPresent(pagesWithStatus::add);
-          });
+              notification -> {
+                Optional<Page> page = pageRepository.getPageById(notification.getPageId());
+                page.ifPresent(pagesWithStatus::add);
+              });
       return ResponseEntity.status(HttpStatus.OK).body(pagesWithStatus);
     }
     return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-        .body("Пользователя с логином " + login + " не существует !");
+            .body("Пользователя с логином " + login + " не существует !");
   }
 }
+

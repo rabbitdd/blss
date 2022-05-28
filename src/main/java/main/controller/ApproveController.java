@@ -10,18 +10,19 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @AllArgsConstructor
-@RestController("/approve")
+@RestController
 public class ApproveController {
 
   private final ApproveService approveService;
   private final NotificationService notificationService;
 
   @PostMapping("/verdict")
-  public ResponseEntity<Verdict> approveEditPageForOneUser(@RequestBody Verdict verdict) {
-    if (approveService
-        .approve(verdict)
-        .getResponseVerdictAns()
-        .contains("Статус изменился"))
+  public ResponseEntity<Verdict> approveEditPageForOneUser(@RequestParam String login, @RequestBody Verdict verdict) {
+    Verdict verdictAns = approveService.approve(verdict, login);
+    if (verdictAns.getResponseVerdictAns().contains("ошибка"))
+      return new ResponseEntity<>(verdict, HttpStatus.INTERNAL_SERVER_ERROR);
+    else
+    if(verdictAns.getResponseVerdictAns().contains("Статус изменился"))
       return new ResponseEntity<>(verdict, HttpStatus.ACCEPTED);
     return new ResponseEntity<>(verdict, HttpStatus.NOT_ACCEPTABLE);
   }
@@ -31,8 +32,9 @@ public class ApproveController {
     return notificationService.getAllNotifications(login);
   }
 
-  @GetMapping("getAllApprovePages")
+  @GetMapping("/getAllApprovePages")
   public ResponseEntity<?> getAllApprovePages(@RequestParam String login) {
     return approveService.getApprovePages(login);
   }
 }
+

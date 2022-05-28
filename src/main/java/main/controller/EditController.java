@@ -6,12 +6,13 @@ import main.entity.ChangeAnswer;
 import main.entity.Request;
 import main.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@RestController("wiki")
+@RestController
 public class EditController {
 
   @Autowired ValidationService validationService;
@@ -24,9 +25,9 @@ public class EditController {
 
   @Autowired ApproveService approveService;
 
-  @PostMapping("/edit")
-  public ResponseEntity<?> editArticle(@RequestBody Request request) {
-    return editService.editWithApprove(request);
+  @PostMapping(path = "/edit")
+  public ResponseEntity<?> editArticle(@RequestParam String login, @RequestBody Request request) {
+    return editService.editWithApprove(login, request);
   }
 
   //  @GetMapping("/commit")

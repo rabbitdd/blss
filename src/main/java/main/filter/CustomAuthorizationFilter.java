@@ -11,6 +11,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import javax.security.sasl.AuthenticationException;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -34,12 +35,16 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
       filterChain.doFilter(request, response);
     } else {
       String authorizationHeader = request.getHeader(AUTHORIZATION);
+      String currentUserLogin = request.getParameter("login");
+      log.info("current user is {} ", currentUserLogin);
       if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
         try {String token = authorizationHeader.substring("Bearer ".length());
         Algorithm algorithm = Algorithm.HMAC256("secret".getBytes());
         JWTVerifier jwtVerifier = JWT.require(algorithm).build();
         DecodedJWT decodedJWT = jwtVerifier.verify(token);
         String username = decodedJWT.getSubject();
+        if (currentUserLogin != null && !username.equals(currentUserLogin))
+          throw new AuthenticationException("you not have access for current user");
         String[] roles = decodedJWT.getClaim("roles").asArray(String.class);
         Collection<SimpleGrantedAuthority> authorities = new ArrayList<>();
         stream(roles).forEach(role -> {

@@ -28,15 +28,15 @@ public class PageService {
     this.userRepository = userRepository;
   }
 
-  public ResponseEntity<String> addPage(Request request) {
+  public ResponseEntity<String> addPage(String login, Request request) {
     Page page = new Page();
     page.setName(request.getName());
     page.setText(request.getText());
-    Optional<User> user = userRepository.getUserByLogin(request.getUserLogin());
+    Optional<User> user = userRepository.getUserByLogin(login);
     if (!user.isPresent()) {
       return new ResponseEntity<>(
           "Невозможно создать страницу, пользователя с логином "
-              + request.getUserLogin()
+              + login
               + " не существует !",
           HttpStatus.BAD_REQUEST);
     }
