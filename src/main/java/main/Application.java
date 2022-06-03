@@ -1,5 +1,7 @@
 package main;
 
+import main.security.XMLReader;
+import main.service.UserServiceImpl;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
@@ -16,5 +18,10 @@ public class Application {
     @Bean
     BCryptPasswordEncoder getPasswordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    protected XMLReader xmlReader(){
+        return new XMLReader();
     }
 }

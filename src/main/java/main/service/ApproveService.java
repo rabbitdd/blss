@@ -14,6 +14,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,20 +29,20 @@ public class ApproveService {
   private final UserRepository userRepository;
   private final NotificationRepository notificationRepository;
   private final PageRepository pageRepository;
+  private final TransactionTemplate transactionTemplate;
 
   public ApproveService(
           NotificationService notificationService, UserRepository userRepository,
           NotificationRepository notificationRepository,
-          PageRepository pageRepository) {
+          PageRepository pageRepository,
+          PlatformTransactionManager transactionManager) {
     this.notificationService = notificationService;
-
+    this.transactionTemplate = new TransactionTemplate(transactionManager);
     this.userRepository = userRepository;
     this.notificationRepository = notificationRepository;
     this.pageRepository = pageRepository;
   }
 
-  @Autowired
-  MKTransactionManager mkTransactionManager;
 
   public Verdict approve(Verdict verdict, String login) {
     Optional<User> firstUser = userRepository.getUserByLogin(login);
@@ -85,7 +87,7 @@ public class ApproveService {
   }
 
   private void checkApproveStatus(Long changeId, Long userId, Long pageId, Notification notification) throws TransactionException {
-    notificationService.getAllNotificationsByChangeId(changeId, userId, pageId, notification);
+    String answer = notificationService.getAllNotificationsByChangeId(changeId, userId, pageId, notification);
   }
 
   public ResponseEntity<?> getApprovePages(String login) {
@@ -105,4 +107,3 @@ public class ApproveService {
             .body("Пользователя с логином " + login + " не существует !");
   }
 }
-

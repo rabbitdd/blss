@@ -56,23 +56,25 @@ public class CustomAuthFilter extends UsernamePasswordAuthenticationFilter {
       FilterChain chain,
       Authentication authResult)
       throws IOException, ServletException {
-    User user = (User) authResult.getPrincipal();
+    log.info(authResult.getPrincipal().toString());
+    log.info(authResult.getAuthorities().toString());
+    //User user = (User) authResult.getPrincipal();
     Algorithm algorithm = Algorithm.HMAC256("secret".getBytes());
     String accessToken =
         JWT.create()
-            .withSubject(user.getUsername())
+            .withSubject(authResult.getPrincipal().toString())
             .withExpiresAt(new Date(System.currentTimeMillis() + 10 * 60 * 1000))
             .withIssuer(request.getRequestURL().toString())
             .withClaim(
                 "roles",
-                user.getAuthorities().stream()
+                authResult.getAuthorities().stream()
                     .map(GrantedAuthority::getAuthority)
                     .collect(Collectors.toList()))
             .sign(algorithm);
 
     String refreshToken =
             JWT.create()
-                    .withSubject(user.getUsername())
+                    .withSubject(authResult.getPrincipal().toString())
                     .withExpiresAt(new Date(System.currentTimeMillis() + 30 * 60 * 1000))
                     .withIssuer(request.getRequestURL().toString())
                     .sign(algorithm);

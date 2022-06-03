@@ -2,70 +2,77 @@
 <xmlFileUser>
     <name>users</name>
     <users>
-        <id>8</id>
-        <login>nikita</login>
-        <password>$2a$12$Kf0KQNfIY6kEXwpmyr4QVu.B5z1JoUtBB1mWb99/q5q8JyTqa3b0K</password>
+        <id>7</id>
+        <login>brat2</login>
+        <password>$2a$12$ACW/8zacPyU3KrCbwZPtDulA.okz7wGtL5ZkIT.g6mKTR6Zb.q7cO</password>
+    </users>
+    <users>
+        <id>6</id>
+        <login>brat</login>
+        <password>$2a$12$J4dcg.Nk5ccjM.CkM6JlxuRSFwiZ/ADfabNuF.l3lll1WzoVFqAdm</password>
         <roles>
-            <id>3</id>
-            <name>ROLE_WRITER</name>
-        </roles>
-        <roles>
-            <id>4</id>
-            <name>ROLE_EDITOR</name>
-        </roles>
-        <roles>
-            <id>4</id>
+            <id>6</id>
             <name>ROLE_EDITOR</name>
         </roles>
     </users>
     <users>
         <id>9</id>
-        <login>victor</login>
-        <password>$2a$12$FpILSJc7hoVSO5wKwfsJ9ejFFIi1EhSRm/4xgzjoS7MPI9Ab5H8WS</password>
+        <login>1</login>
+        <password>$2a$12$aAD0Fs2wd7X5o2vGtN20iOK.5BHKyXt2MVyh.ynuo/ykePivMcd1S</password>
         <roles>
-            <id>4</id>
-            <name>ROLE_EDITOR</name>
+            <id>2</id>
+            <name>NEW_ROLE</name>
         </roles>
     </users>
     <users>
-        <id>10</id>
-        <login>kirill</login>
-        <password>$2a$12$kOsT/3FvcgHcX4PMtBIe3e5bdMavGgDOLbtYNSWCaWDnUk2yS5NiC</password>
+        <id>8</id>
+        <login>brat3</login>
+        <password>$2a$12$Gc1TKPenKsdesEqGONAXf.6fGHA6IyHbWZnRsdesPQFygrS2z7jwq</password>
     </users>
     <users>
         <id>11</id>
-        <login>n</login>
-        <password>$2a$10$1mfMDxWNXnbVqjWOvPNDYuv1wR4jBmIVS20ZaZMbXjjY.qviyzc2.</password>
+        <login>2</login>
+        <password>2</password>
+    </users>
+    <users>
+        <id>18</id>
+        <login>nikita</login>
+        <password>$2a$10$m7EZxu6ib9Z8wZJp5FTbYe6OsJ14obF.rdN40y08HLlU2b1XYfjSi</password>
         <roles>
-            <id>1</id>
+            <id>3</id>
             <name>ROLE_ADMIN</name>
         </roles>
     </users>
     <users>
-        <id>12</id>
-        <login>r</login>
-        <password>$2a$10$Pj3dZN5LzWSxWTR/INK1G.jCAZjkXF7erawzEuiB92KmZJ5xdRRJK</password>
+        <id>19</id>
+        <login>string</login>
+        <password>$2a$10$pb5zjczGKpIym5vVlqOMEuFtxKTJRxt79ph3efYbVa0kWOEC3FlOK</password>
+    </users>
+    <users>
+        <id>22</id>
+        <login>nikita2</login>
+        <password>$2a$10$RBZBWgRSdJhPt7NRyny5dOYTYQkyQgNlMzbCsib.Lr7RcXJOV77rS</password>
         <roles>
-            <id>2</id>
+            <id>5</id>
+            <name>ROLE_READER</name>
+        </roles>
+        <roles>
+            <id>6</id>
+            <name>ROLE_EDITOR</name>
+        </roles>
+    </users>
+    <users>
+        <id>23</id>
+        <login>mishanin</login>
+        <password>$2a$10$yQw7O7CiEZFhx90vAodsyuhymtvAAF3UM3hH3aCCiD9D69HCaLWkm</password>
+        <roles>
+            <id>5</id>
             <name>ROLE_READER</name>
         </roles>
     </users>
     <users>
-        <id>13</id>
-        <login>w</login>
-        <password>$2a$10$kbrMFxiOsWNFu1iUwMIIrOv7xF6PdfG9GvgMA.s52zZS2mpUkZWbi</password>
-        <roles>
-            <id>3</id>
-            <name>ROLE_WRITER</name>
-        </roles>
-    </users>
-    <users>
-        <id>14</id>
-        <login>e</login>
-        <password>$2a$10$i8kj2.Q9PgGQUIFFnxvjTee8V6KOsdJuwvJL1OXcRTEWeCs0nKfuW</password>
-        <roles>
-            <id>4</id>
-            <name>ROLE_EDITOR</name>
-        </roles>
+        <id>24</id>
+        <login>new</login>
+        <password>$2a$10$tBLXOr3PlhUzXw7Vfu2BUe2J882Mxw6phPE96md.eg1PG7xe5vak.</password>
     </users>
 </xmlFileUser>

@@ -6,6 +6,7 @@ import main.filter.CustomAuthorizationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.jaas.AbstractJaasAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
@@ -26,6 +27,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
   private final UserDetailsService userDetailsService;
   private final BCryptPasswordEncoder bCryptPasswordEncoder;
+  private final AbstractJaasAuthenticationProvider jaasAuthenticationProvider;
 
   private static final String[] AUTH_WHITELIST = {
     "/swagger-resources/**", "/swagger-ui.html", "/v2/api-docs", "/webjars/**"
@@ -72,7 +74,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
   @Override
   protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-    auth.userDetailsService(userDetailsService).passwordEncoder(bCryptPasswordEncoder);
+    auth.authenticationProvider(jaasAuthenticationProvider);
+    //auth.userDetailsService(userDetailsService).passwordEncoder(bCryptPasswordEncoder);
   }
 
   @Bean
