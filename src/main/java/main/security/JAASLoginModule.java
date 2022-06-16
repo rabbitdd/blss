@@ -47,14 +47,28 @@ public class JAASLoginModule implements LoginModule {
   public boolean login() {
     log.info("login");
     NameCallback nameCallback = new NameCallback("login");
+    log.info("callback first");
     PasswordCallback passwordCallback = new PasswordCallback("password", false);
+    log.info("callback second");
     try {
       callbackHandler.handle(new Callback[] {nameCallback, passwordCallback});
+      log.info("callback handle");
       username = nameCallback.getName();
-      User user = this.xml.getToken(username);
-      this.user = user;
+      log.info(username);
       String password = String.valueOf(passwordCallback.getPassword());
+      log.info(password);
+      log.info(xml.toString() + " some looooooogs");
+      if (xml == null)
+        log.info("xml is null");
+      User user = xml.getToken(username);
+      if (user == null)
+        log.info("user is null");
+      log.info(user.toString() + "some log neeeeeeeeed");
+      this.user = user;
+//      String password = String.valueOf(passwordCallback.getPassword());
+//      log.info(password);
       String currentPassword = user.getPassword();
+      log.info(currentPassword);
       log.info(user.toString());
       loginSucceeded = passwordEncoder.matches(password, currentPassword);
       log.info(String.valueOf(loginSucceeded));
