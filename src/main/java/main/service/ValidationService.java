@@ -32,12 +32,13 @@ public class ValidationService {
   }
 
   public boolean userHasValidRole(String login) {
-    if (userExist(login)) {
-      User user = userRepository.getUserByLogin(login).get();
-      return user.getRole().equals("admin");
-    } else {
-      return false;
-    }
+//    if (userExist(login)) {
+//      User user = userRepository.getUserByLogin(login).get();
+//      return user.getRole().equals("admin");
+//    } else {
+//      return false;
+//    }
+    return false;
   }
   // TODO page exist or else not exist create page
   private boolean pageExist(String page) {

@@ -1,19 +1,21 @@
 package main.controller;
 
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import main.service.SearchService;
 import main.service.UserService;
+import main.service.UserServiceImpl;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class SearchController {
   private final SearchService searchService;
 
-  private final UserService userService;
+  private final UserServiceImpl userService;
 
   @GetMapping("/page")
   public ResponseEntity<String> getPage(@RequestParam String login, @RequestParam String name) {

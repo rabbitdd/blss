@@ -13,6 +13,6 @@ public class Request {
 
   private String name;
   private String text;
-  private String userLogin;
+  // private String userLogin;
   private String comment;
 }
