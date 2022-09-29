@@ -96,7 +96,7 @@ public class ValidationService {
 //  }
 
   public boolean validationRequestPage(Page page) {
-    return Stream.of(page.getId(), page.getOwner(), page.getName(), page.getRole(), page.getText())
+    return Stream.of(page.getId(), page.getOwner(), page.getName(), page.getText())
         .noneMatch(Objects::isNull);
   }
 

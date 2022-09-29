@@ -14,6 +14,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -84,6 +85,10 @@ public class CustomAuthFilter extends UsernamePasswordAuthenticationFilter {
     tokens.put("access_token", accessToken);
     tokens.put("refresh_token", refreshToken);
     response.setContentType(APPLICATION_JSON_VALUE);
+    response.setHeader("access_token", accessToken);
+    response.setHeader("refresh_token", refreshToken);
+
     new ObjectMapper().writeValue(response.getOutputStream(), tokens);
+    //chain.doFilter(request, response);
   }
 }

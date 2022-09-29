@@ -46,7 +46,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     httpSecurity.csrf().disable();
     httpSecurity
         .authorizeRequests()
-        .antMatchers("/swagger-ui/**", "/token/refresh", "/signIn", "/signUp", "/saveUserInfo")
+        .antMatchers("/swagger-ui/**", "/token/refresh", "/login", "/signUp", "/saveUserInfo")
         .permitAll();
     httpSecurity.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
     httpSecurity.authorizeRequests().antMatchers(GET, "/page").hasAnyAuthority("ROLE_READER");

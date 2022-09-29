@@ -33,9 +33,10 @@ public class XMLReader {
 
   public User getToken(String login) {
     try{
-      File file = new File(FILE_SE);
+      File file = new File(FILE_NAME);
       log.info("file exist " + file.getName());
-      String fileNameHelios = "/home/s284694/log.xml";
+      String fileNameHelios =
+          "C:\\Users\\Никита\\Desktop\\itmo\\6 семестр\\БЛПС\\BLPS1\\src\\main\\resources\\info.xml";
       //File file = new File(FILE_NAME);
       XmlFileUser fileUser = JAXB.unmarshal(file.getAbsoluteFile(), XmlFileUser.class);
       log.info("file user exitst " + fileUser.toString());

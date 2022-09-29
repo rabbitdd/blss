@@ -1,5 +1,6 @@
 package main.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
@@ -7,6 +8,10 @@ import lombok.extern.slf4j.Slf4j;
 import main.entity.Role;
 import main.entity.User;
 import main.service.UserServiceImpl;
+import org.springframework.amqp.core.*;
+import org.springframework.amqp.rabbit.core.RabbitAdmin;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -50,6 +55,7 @@ public class SecurityController {
   @Transactional
   public ResponseEntity<String> signIn(@RequestParam String login, @RequestParam String password, HttpServletRequest request, HttpServletResponse response) {
     log.info("SignIn user with login {}", login);
+
     return new ResponseEntity<String>("Thank you for submitting feedback", HttpStatus.OK);
   }
 

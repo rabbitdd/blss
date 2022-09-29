@@ -3,6 +3,7 @@ package main.entity;
 import lombok.*;
 
 import javax.persistence.*;
+import java.io.Serializable;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -10,7 +11,7 @@ import javax.persistence.*;
 @Setter
 @ToString
 @Entity(name = "notification")
-public class Notification {
+public class Notification implements Serializable {
   @Id
   @Column(name = "notification_id")
   @GeneratedValue(strategy = GenerationType.IDENTITY)

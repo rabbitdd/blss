@@ -1,5 +1,6 @@
 package main.service;
 
+import lombok.extern.slf4j.Slf4j;
 import main.entity.*;
 import main.repository.AuthorRepository;
 import main.repository.PageRepository;
@@ -13,6 +14,7 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 @Service
+@Slf4j
 public class PageService {
 
   private final PageRepository pageRepository;
@@ -41,7 +43,9 @@ public class PageService {
           HttpStatus.BAD_REQUEST);
     }
     page.setOwner(user.get().getId());
-    // page.setRole(user.get().getRole());
+
+    //page.setRole(user.get().getRoles());
+    log.info(page.toString());
     if (validationRequestPage(page)) {
       if (pageRepository.existsPageByName(page.getName()))
         return new ResponseEntity<>(
@@ -58,7 +62,7 @@ public class PageService {
   }
 
   private boolean validationRequestPage(Page page) {
-    return Stream.of(page.getOwner(), page.getName(), page.getRole(), page.getText())
+    return Stream.of(page.getOwner(), page.getName(), page.getText())
         .noneMatch(Objects::isNull);
   }
 

@@ -1,15 +1,14 @@
 package main.service;
 
+import lombok.AllArgsConstructor;
 import main.bean.Status;
 import main.entity.*;
 import main.exceptions.TransactionException;
-import main.repository.AuthorRepository;
-import main.repository.ChangeRepository;
-import main.repository.NotificationRepository;
-import main.repository.UserRepository;
-import main.transaction.MKTransactionManager;
+import main.repository.*;
 import org.jetbrains.annotations.NotNull;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.amqp.core.Queue;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -18,10 +17,14 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
+@AllArgsConstructor
 public class NotificationService implements UserFinder {
 
   private final AuthorRepository authorRepository;
@@ -30,21 +33,7 @@ public class NotificationService implements UserFinder {
   private final ChangeRepository changeRepository;
   private final PageService pageService;
   private final TransactionTemplate transactionTemplate;
-
-  public NotificationService(
-          AuthorRepository authorRepository,
-          NotificationRepository notificationRepository,
-          UserRepository userRepository,
-          ChangeRepository changeRepository,
-          PageService pageService,
-          PlatformTransactionManager transactionManager) {
-    this.transactionTemplate = new TransactionTemplate(transactionManager);
-    this.authorRepository = authorRepository;
-    this.notificationRepository = notificationRepository;
-    this.userRepository = userRepository;
-    this.changeRepository = changeRepository;
-    this.pageService = pageService;
-  }
+  private final MqttGateway mqttGateway;
 
   private boolean transactionForSendingConfirmations(Long senderUser, Page page, Long changeId){
     return (boolean) transactionTemplate.execute(new TransactionCallback(){
@@ -61,7 +50,28 @@ public class NotificationService implements UserFinder {
                     notification.setStatus(Status.NOT_CONFIRMED.toString());
                     notification.setPageId(page.getId());
                     notification.setChangeId(changeId);
-                    notificationRepository.save(notification);
+
+                    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                    ObjectOutputStream oos = null;
+                    try {
+                      oos = new ObjectOutputStream(bos);
+                    } catch (IOException e) {
+                      e.printStackTrace();
+                    }
+                    try {
+                      oos.writeObject(notification);
+                    } catch (IOException e) {
+                      e.printStackTrace();
+                    }
+                    try {
+                      oos.flush();
+                    } catch (IOException e) {
+                      e.printStackTrace();
+                    }
+                    byte [] data = bos.toByteArray();
+                    mqttGateway.sendToMqtt(data);
+
+                    //notificationRepository.save(notification);
                   });
           return true;
         }
@@ -70,6 +80,10 @@ public class NotificationService implements UserFinder {
         }
       }
     });
+  }
+
+  private boolean emitToRabbitMq() {
+    return true;
   }
 
   public void sendConfirmationsToAllCoAuthors(Long senderUser, Page page, Long changeId) throws TransactionException {
