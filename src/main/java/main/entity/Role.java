@@ -11,7 +11,6 @@ import javax.persistence.*;
 @AllArgsConstructor
 @ToString
 public class Role {
-
   @Id
   @Column(name = "roles_id")
   @GeneratedValue(strategy = GenerationType.IDENTITY)

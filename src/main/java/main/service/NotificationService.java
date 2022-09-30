@@ -35,6 +35,8 @@ public class NotificationService implements UserFinder {
   private final TransactionTemplate transactionTemplate;
   private final MqttGateway mqttGateway;
 
+  private final NotificationStatusRepository notificationStatusRepository;
+
   private boolean transactionForSendingConfirmations(Long senderUser, Page page, Long changeId){
     return (boolean) transactionTemplate.execute(new TransactionCallback(){
 
@@ -114,13 +116,53 @@ public class NotificationService implements UserFinder {
 
     Optional<User> user = userRepository.getUserByLogin(userLogin);
     if (user.isPresent()) {
+      List<Notification> notificationList = this.notificationRepository.getNotificationsByUserId(user.get().getId()).stream()
+              .filter(
+                      notification ->
+                              notification.getStatus().equals(Status.NOT_CONFIRMED.toString()))
+              .collect(Collectors.toList());
+      for(Notification notification: notificationList) {
+        Optional<NotificationStatus> optionalNotificationStatus = notificationStatusRepository.
+                getNotificationStatusByNotificationId(notification.getId());
+        if (optionalNotificationStatus.isPresent()) {
+          NotificationStatus notificationStatus = optionalNotificationStatus.get();
+          notificationStatus.setIsRead(true);
+          System.out.println(notificationStatus.getIsRead());
+          notificationStatusRepository.save(notificationStatus);
+        }
+      }
       return ResponseEntity.status(HttpStatus.OK)
-              .body(
-                      this.notificationRepository.getNotificationsByUserId(user.get().getId()).stream()
-                              .filter(
-                                      notification ->
-                                              notification.getStatus().equals(Status.NOT_CONFIRMED.toString()))
-                              .collect(Collectors.toList()));
+              .body(notificationList);
+    }
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            .body("Пользователя с логином " + userLogin + " не существует !");
+  }
+
+  public ResponseEntity<?> getAllNotificationsToRead(String userLogin) {
+
+    Optional<User> user = userRepository.getUserByLogin(userLogin);
+    if (user.isPresent()) {
+      List<Notification> notificationList = this.notificationRepository.getNotificationsByUserId(user.get().getId()).stream()
+              .filter(
+                      notification ->
+                              notification.getStatus().equals(Status.NOT_CONFIRMED.toString()))
+              .collect(Collectors.toList());
+      List<Notification> notificationsToRead = new ArrayList<>();
+      for(Notification notification: notificationList){
+        Optional<NotificationStatus> optionalNotificationStatus = notificationStatusRepository.
+                getNotificationStatusByNotificationId(notification.getId());
+        if(optionalNotificationStatus.isPresent()){
+          NotificationStatus notificationStatus = optionalNotificationStatus.get();
+          if(!notificationStatus.getIsRead()){
+            notificationsToRead.add(notification);
+            notificationStatus.setIsRead(true);
+            System.out.println(notificationStatus.getIsRead());
+            notificationStatusRepository.save(notificationStatus);
+          }
+        }
+      }
+      return ResponseEntity.status(HttpStatus.OK)
+              .body(notificationsToRead);
     }
     return ResponseEntity.status(HttpStatus.BAD_REQUEST)
             .body("Пользователя с логином " + userLogin + " не существует !");

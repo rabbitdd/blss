@@ -36,5 +36,12 @@ public class ApproveController {
   public ResponseEntity<?> getAllApprovePages(@RequestParam String login) {
     return approveService.getApprovePages(login);
   }
+
+  @GetMapping("/getNotificationsToRead")
+  public ResponseEntity<?> getAllNotificationsStatusToRead(@RequestParam String login) {
+    return notificationService.getAllNotificationsToRead(login);
+
+  }
+
 }
 

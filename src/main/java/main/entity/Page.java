@@ -11,7 +11,6 @@ import javax.persistence.*;
 @Setter
 @ToString
 public class Page {
-
   @Id
   @Column(name = "page_id")
   @GeneratedValue(strategy = GenerationType.IDENTITY)

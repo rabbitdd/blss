@@ -132,7 +132,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
   public void saveUsersInfo() throws JAXBException, FileNotFoundException, XMLStreamException {
     String fileNameHelios = "/home/s284694/log.xml";
-    File file = new File("C:\\Users\\Никита\\Desktop\\itmo\\6 семестр\\БЛПС\\BLPS1\\src\\main\\resources\\info.xml");
+    File file = new File("C:\\Users\\Admin\\OneDrive\\Рабочий стол\\Ucheb\\Labs\\BLPS\\BLPS3\\src\\main\\resources\\info.xml");
     //File file = new File(fileNameHelios);
     List<User> users = findAll();
     XmlFileUser xmlFileUser = new XmlFileUser("users", users);

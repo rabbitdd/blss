@@ -2,7 +2,6 @@ package main.service;
 
 import lombok.extern.slf4j.Slf4j;
 import main.entity.Notification;
-import org.springframework.amqp.rabbit.annotation.EnableRabbit;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
 
@@ -36,15 +35,17 @@ public class RabbitMqListener {
 //    Thread.sleep(6000);
 //  }
 
-  @RabbitListener(queues = "exampleQueue")
-  public void listenMessage(byte[] in) throws IOException, ClassNotFoundException {
-    log.info("Event consumed : " + deserialize(in).toString());
-    isMessageConsumed.set(true);
-  }
-
-  public static Object deserialize(byte[] data) throws IOException, ClassNotFoundException {
-    ByteArrayInputStream in = new ByteArrayInputStream(data);
-    ObjectInputStream is = new ObjectInputStream(in);
-    return is.readObject();
-  }
+//  @RabbitListener(queues = "exampleQueue")
+//  public void listenMessage(byte[] in) throws IOException, ClassNotFoundException {
+//    //log.info("Event consumed : " + deserialize(in).toString());
+//      Notification notification = (Notification) deserialize(in);
+//      log.info(notification.toString());
+//    isMessageConsumed.set(true);
+//  }
+//
+//  public static Object deserialize(byte[] data) throws IOException, ClassNotFoundException {
+//    ByteArrayInputStream in = new ByteArrayInputStream(data);
+//    ObjectInputStream is = new ObjectInputStream(in);
+//    return is.readObject();
+//  }
 }

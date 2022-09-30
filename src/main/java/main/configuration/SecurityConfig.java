@@ -56,7 +56,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     httpSecurity.authorizeRequests().antMatchers(POST, "/role/**").hasAnyAuthority("ROLE_ADMIN");
     httpSecurity.authorizeRequests().antMatchers(GET, "/role/**").hasAnyAuthority("ROLE_ADMIN");
     httpSecurity.authorizeRequests().antMatchers(POST, "/verdict").hasAnyAuthority("ROLE_WRITER", "ROLE_EDITOR");
-    httpSecurity.authorizeRequests().antMatchers(GET, "/getAllNotifications", "/getAllApprovePages").hasAnyAuthority("ROLE_WRITER", "ROLE_EDITOR");
+    httpSecurity.authorizeRequests().antMatchers(GET, "/getAllNotifications", "/getAllApprovePages", "/getNotificationsToRead").hasAnyAuthority("ROLE_WRITER", "ROLE_EDITOR");
     httpSecurity
         .authorizeRequests()
         .antMatchers(POST, "/edit")

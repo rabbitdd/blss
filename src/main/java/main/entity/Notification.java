@@ -31,4 +31,5 @@ public class Notification implements Serializable {
 
   @Column(name = "change_id")
   private Long changeId;
+
 }

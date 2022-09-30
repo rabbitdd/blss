@@ -16,7 +16,7 @@ public class XMLReader {
 
   // final private UserServiceImpl userService;
   static private final String FILE_SE = "/home/s284694/log.xml";
-  static private final String FILE_NAME = "C:\\Users\\Никита\\Desktop\\itmo\\6 семестр\\БЛПС\\BLPS1\\src\\main\\resources\\info.xml";
+  static private final String FILE_NAME = "C:\\Users\\Admin\\OneDrive\\Рабочий стол\\Ucheb\\Labs\\BLPS\\BLPS3\\src\\main\\resources\\info.xml";
 
   public boolean writeUserInfo() throws JAXBException {
 //    String fileNameHelios = "/home/s284694/log.xml";
